@@ -23,14 +23,16 @@ export default function Footer() {
                 </span>
               </span>
             </div>
-            <p className="mt-3 max-w-sm text-xs leading-relaxed text-muted">
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted">
               A centralized platform that transforms urban waste management from
               a reactive disposal process into a proactive, resource-oriented
               system where every type of waste is treated as a recoverable asset.
+              Mainly Focus on Company Allocation.
+
             </p>
             <p className="mt-3 flex items-center gap-1.5 text-xs text-brand-700">
               <Leaf className="h-3.5 w-3.5" />
-              Supporting environmental sustainability
+              Smart Waste-to-Assets Management
             </p>
           </div>
 
