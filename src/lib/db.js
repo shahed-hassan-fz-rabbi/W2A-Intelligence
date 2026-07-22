@@ -14,24 +14,26 @@ export function getPool() {
       connectionLimit: 10,
       queueLimit: 0,
       decimalNumbers: true,
+      // Cloud providers require TLS; local XAMPP does not
+      ssl:
+        process.env.DB_SSL === "true"
+          ? { rejectUnauthorized: false }
+          : undefined,
     });
   }
   return pool;
 }
 
-// SELECT — returns array of rows
 export async function query(sql, params = []) {
   const [rows] = await getPool().execute(sql, params);
   return rows;
 }
 
-// INSERT / UPDATE / DELETE — returns result metadata
 export async function execute(sql, params = []) {
   const [result] = await getPool().execute(sql, params);
   return result;
 }
 
-// For multi-step operations that must succeed together
 export async function withTransaction(callback) {
   const conn = await getPool().getConnection();
   try {
