@@ -43,7 +43,8 @@ export default function Sidebar({
         {/* Brand */}
         <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-white/10 px-3">
           <Link
-            href="/dashboard"
+            href="/"
+            title="Public home"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white"
           >
             W2A

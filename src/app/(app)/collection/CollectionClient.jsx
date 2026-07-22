@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import DataTable from "@/components/DataTable";
 import StatusBadge from "@/components/StatusBadge";
+import { notify, confirmToast } from "@/lib/toast";
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
@@ -17,8 +18,19 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
     quantity_kg: "",
     collection_date: todayStr(),
   });
-  const [msg, setMsg] = useState(null);
   const [saving, setSaving] = useState(false);
+
+  // Group zones by city so the dropdowns stay readable across many cities
+  const zonesByCity = useMemo(
+    () =>
+      Object.entries(
+        zones.reduce((acc, z) => {
+          (acc[z.city] ||= []).push(z);
+          return acc;
+        }, {})
+      ),
+    [zones]
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -37,7 +49,6 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setMsg(null);
     setSaving(true);
     try {
       const res = await fetch("/api/collections", {
@@ -47,10 +58,10 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMsg({ type: "error", text: data.error });
+        notify.error(data.error);
         return;
       }
-      setMsg({ type: "success", text: data.message });
+      notify.success(data.message);
       setForm({
         zone_id: "",
         waste_type_id: "",
@@ -63,11 +74,19 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm("Delete this collection record permanently?")) return;
-    const res = await fetch(`/api/collections/${id}`, { method: "DELETE" });
-    if (res.ok) load();
-    else setMsg({ type: "error", text: "Could not delete record" });
+  function handleDelete(row) {
+    confirmToast("Delete this collection record permanently?", async () => {
+      const res = await fetch(`/api/collections/${row.collection_id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        notify.error(data.error || "Could not delete record");
+        return;
+      }
+      notify.success("Record deleted");
+      load();
+    });
   }
 
   const columns = [
@@ -98,7 +117,7 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
             label: "Action",
             render: (r) => (
               <button
-                onClick={() => handleDelete(r.collection_id)}
+                onClick={() => handleDelete(r)}
                 className="text-xs font-medium text-red-600 hover:underline"
               >
                 Delete
@@ -110,7 +129,7 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
   ];
 
   const inputCls =
-    "w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
+    "w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
 
   return (
     <div className="space-y-6">
@@ -133,10 +152,14 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
                 className={inputCls}
               >
                 <option value="">Select zone</option>
-                {zones.map((z) => (
-                  <option key={z.zone_id} value={z.zone_id}>
-                    {z.name} ({z.area_code})
-                  </option>
+                {zonesByCity.map(([city, list]) => (
+                  <optgroup key={city} label={city}>
+                    {list.map((z) => (
+                      <option key={z.zone_id} value={z.zone_id}>
+                        {z.name} ({z.area_code})
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
@@ -197,18 +220,6 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
             </div>
           </div>
 
-          {msg && (
-            <p
-              className={`mt-4 rounded-lg px-3 py-2 text-sm ${
-                msg.type === "error"
-                  ? "bg-red-50 text-red-600"
-                  : "bg-brand-50 text-brand-700"
-              }`}
-            >
-              {msg.text}
-            </p>
-          )}
-
           <button
             type="submit"
             disabled={saving}
@@ -228,10 +239,14 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
             className={inputCls}
           >
             <option value="">All zones</option>
-            {zones.map((z) => (
-              <option key={z.zone_id} value={z.zone_id}>
-                {z.name}
-              </option>
+            {zonesByCity.map(([city, list]) => (
+              <optgroup key={city} label={city}>
+                {list.map((z) => (
+                  <option key={z.zone_id} value={z.zone_id}>
+                    {z.name}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
 

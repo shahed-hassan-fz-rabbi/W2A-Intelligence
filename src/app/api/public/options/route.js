@@ -4,7 +4,9 @@ import { query } from "@/lib/db";
 export async function GET() {
   try {
     const [zones, companies] = await Promise.all([
-      query("SELECT zone_id, name, area_code FROM Zone ORDER BY name"),
+      query(
+        "SELECT zone_id, name, city, area_code FROM Zone ORDER BY city, name"
+      ),
       query(
         "SELECT company_id, name FROM Company WHERE is_active = TRUE ORDER BY name"
       ),

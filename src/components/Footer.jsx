@@ -71,7 +71,7 @@ export default function Footer() {
             <ul className="space-y-2 text-xs text-muted">
               <li>Department of CSE</li>
               <li>Comilla University</li>
-              <li>Academic Build v1.0.0</li>
+              
               <li className="flex items-center gap-1.5 pt-1">
                 <Mail className="h-3.5 w-3.5" />
                 <a
@@ -87,13 +87,13 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-line pt-5 text-xs text-muted sm:flex-row">
-          <p>© {year} W2A Intelligence. Developed for academic purposes only.</p>
+          <p>© {year} W2A Intelligence. Copyright</p>
           <div className="flex items-center gap-4">
             <Link href="/settings" className="hover:text-brand-600">
               Settings
             </Link>
             <span className="text-line">|</span>
-            <span>Built with Next.js &amp; MySQL</span>
+            
           </div>
         </div>
       </div>

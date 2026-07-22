@@ -10,18 +10,38 @@ export async function PATCH(request, { params }) {
 
   try {
     const { id } = await params;
-    const { name, area_code, population } = await request.json();
+    const body = await request.json();
 
-    if (!name?.trim() || !area_code?.trim()) {
+    const name = body.name?.trim();
+    const city = body.city?.trim();
+    const area_code = body.area_code?.trim().toUpperCase();
+
+    if (!name || !city || !area_code) {
       return NextResponse.json(
-        { error: "Zone name and area code are required" },
+        { error: "Zone name, city and area code are required" },
         { status: 400 }
       );
     }
 
+    const lat = body.latitude === "" || body.latitude == null ? null : Number(body.latitude);
+    const lng = body.longitude === "" || body.longitude == null ? null : Number(body.longitude);
+
     const result = await execute(
-      "UPDATE Zone SET name = ?, area_code = ?, population = ? WHERE zone_id = ?",
-      [name.trim(), area_code.trim().toUpperCase(), Number(population) || 0, id]
+      `UPDATE Zone
+       SET name = ?, city = ?, district = ?, country = ?,
+           area_code = ?, population = ?, latitude = ?, longitude = ?
+       WHERE zone_id = ?`,
+      [
+        name,
+        city,
+        body.district?.trim() || null,
+        body.country?.trim() || "Bangladesh",
+        area_code,
+        Number(body.population) || 0,
+        lat,
+        lng,
+        id,
+      ]
     );
 
     if (result.affectedRows === 0) {
@@ -31,7 +51,7 @@ export async function PATCH(request, { params }) {
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
       return NextResponse.json(
-        { error: "Another zone already uses this name or area code" },
+        { error: "This city already has a zone with that name or area code" },
         { status: 409 }
       );
     }
@@ -48,16 +68,13 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
 
-    // FK is RESTRICT — check first so we can give a readable message
     const [used] = await query(
       "SELECT COUNT(*) AS n FROM WasteCollection WHERE zone_id = ?",
       [id]
     );
     if (used.n > 0) {
       return NextResponse.json(
-        {
-          error: `This zone has ${used.n} collection record(s) and cannot be deleted`,
-        },
+        { error: `This zone has ${used.n} collection record(s) and cannot be deleted` },
         { status: 409 }
       );
     }

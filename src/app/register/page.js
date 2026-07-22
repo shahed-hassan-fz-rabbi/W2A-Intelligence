@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Truck, Building2, ArrowLeft } from "lucide-react";
@@ -43,6 +43,17 @@ export default function RegisterPage() {
       .then((d) => setOptions(d.error ? { zones: [], companies: [] } : d))
       .catch(() => notify.error("Could not load zones and companies"));
   }, []);
+
+  const zonesByCity = useMemo(
+    () =>
+      Object.entries(
+        options.zones.reduce((acc, z) => {
+          (acc[z.city] ||= []).push(z);
+          return acc;
+        }, {})
+      ),
+    [options.zones]
+  );
 
   function pickRole(role) {
     setForm({ ...form, role, zone_id: "", company_id: "" });
@@ -88,9 +99,12 @@ export default function RegisterPage() {
     <main className="flex min-h-screen items-center justify-center bg-canvas p-4">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-lg font-bold text-white">
+          <Link
+            href="/"
+            className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-lg font-bold text-white"
+          >
             W2A
-          </div>
+          </Link>
           <h1 className="text-xl font-bold text-ink">Create an account</h1>
           <p className="mt-1 text-sm text-muted">
             {step === 1
@@ -148,8 +162,7 @@ export default function RegisterPage() {
             </button>
 
             <div className="mb-4 rounded-lg bg-brand-50 px-3 py-2 text-xs font-medium text-brand-700">
-              Registering as{" "}
-              {ROLES.find((r) => r.value === form.role)?.label}
+              Registering as {ROLES.find((r) => r.value === form.role)?.label}
             </div>
 
             <label className="mb-1.5 block text-sm font-medium text-ink-soft">
@@ -190,10 +203,14 @@ export default function RegisterPage() {
                   className={`${inputCls} mb-4`}
                 >
                   <option value="">Select your zone</option>
-                  {options.zones.map((z) => (
-                    <option key={z.zone_id} value={z.zone_id}>
-                      {z.name} ({z.area_code})
-                    </option>
+                  {zonesByCity.map(([city, list]) => (
+                    <optgroup key={city} label={city}>
+                      {list.map((z) => (
+                        <option key={z.zone_id} value={z.zone_id}>
+                          {z.name} ({z.area_code})
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </>

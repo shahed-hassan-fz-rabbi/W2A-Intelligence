@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import CollectionClient from "./CollectionClient";
 import { query } from "@/lib/db";
@@ -7,9 +8,12 @@ export const dynamic = "force-dynamic";
 
 export default async function CollectionPage() {
   const session = await getSession();
+  if (!session) redirect("/login");
 
   const zones = await query(
-    "SELECT zone_id, name, area_code FROM Zone ORDER BY name"
+    `SELECT zone_id, name, city, area_code
+     FROM Zone
+     ORDER BY city, name`
   );
   const wasteTypes = await query(
     `SELECT waste_type_id, name, category
