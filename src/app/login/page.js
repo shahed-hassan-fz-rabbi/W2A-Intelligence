@@ -1,24 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { notify } from "@/lib/toast";
 
 const DEMO = [
-  { label: "Admin",     email: "admin@w2a.com",  password: "admin123" },
-  { label: "Collector", email: "rakib@w2a.com",  password: "collect123" },
-  { label: "Company",   email: "green@w2a.com",  password: "company123" },
+  { label: "Admin", email: "admin@w2a.com", password: "admin123" },
+  { label: "Collector", email: "rakib@w2a.com", password: "collect123" },
+  { label: "Company", email: "green@w2a.com", password: "company123" },
 ];
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
@@ -27,18 +27,24 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
+
       if (!res.ok) {
-        setError(data.error || "Login failed");
+        notify.error(data.error || "Login failed");
         return;
       }
+
+      notify.success(`Welcome back, ${data.name.split(" ")[0]}`);
       router.push("/dashboard");
       router.refresh();
     } catch {
-      setError("Could not reach the server");
+      notify.error("Could not reach the server");
     } finally {
       setLoading(false);
     }
   }
+
+  const inputCls =
+    "w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-canvas p-4">
@@ -55,7 +61,7 @@ export default function LoginPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-line bg-surface p-6 shadow-sm"
+          className="rounded-2xl border border-line bg-surface p-6"
         >
           <label className="mb-1.5 block text-sm font-medium text-ink-soft">
             Email
@@ -65,7 +71,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="mb-4 w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            className={`${inputCls} mb-4`}
             placeholder="admin@w2a.com"
           />
 
@@ -77,15 +83,9 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="mb-4 w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            className={`${inputCls} mb-5`}
             placeholder="••••••••"
           />
-
-          {error && (
-            <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-              {error}
-            </p>
-          )}
 
           <button
             type="submit"
@@ -95,6 +95,16 @@ export default function LoginPage() {
             {loading ? "Signing in…" : "Sign In"}
           </button>
         </form>
+
+        <p className="mt-4 text-center text-sm text-muted">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/register"
+            className="font-medium text-brand-600 hover:underline"
+          >
+            Create one
+          </Link>
+        </p>
 
         <div className="mt-4 rounded-xl border border-line bg-surface p-4">
           <p className="mb-2 text-xs font-semibold text-muted">DEMO ACCOUNTS</p>

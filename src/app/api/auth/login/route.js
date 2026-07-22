@@ -14,7 +14,7 @@ export async function POST(request) {
     }
 
     const rows = await query(
-      `SELECT user_id, name, email, password_hash, role, zone_id
+      `SELECT user_id, name, email, password_hash, role, zone_id, company_id
        FROM User
        WHERE email = ? AND is_active = TRUE`,
       [email.trim().toLowerCase()]
@@ -28,8 +28,9 @@ export async function POST(request) {
     }
 
     await setSession(rows[0]);
-    return NextResponse.json({ ok: true, role: rows[0].role });
+    return NextResponse.json({ ok: true, role: rows[0].role, name: rows[0].name });
   } catch (err) {
+    console.error("LOGIN ERROR:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

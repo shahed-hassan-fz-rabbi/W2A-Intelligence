@@ -9,14 +9,16 @@ export async function setSession(user) {
     JSON.stringify({
       user_id: user.user_id,
       name: user.name,
+      email: user.email,
       role: user.role,
       zone_id: user.zone_id,
+      company_id: user.company_id ?? null,
     }),
     {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 30, // NFR-S-4: 30 minute expiry
+      maxAge: 60 * 30,
     }
   );
 }
@@ -37,7 +39,6 @@ export async function clearSession() {
   store.delete(COOKIE);
 }
 
-// Role guard for API routes
 export async function requireRole(...allowed) {
   const session = await getSession();
   if (!session) return { ok: false, status: 401, message: "Not logged in" };

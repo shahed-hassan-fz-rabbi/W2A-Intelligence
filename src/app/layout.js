@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Toaster } from "sonner";
 
 export const metadata = {
   title: "W2A Intelligence",
@@ -8,7 +9,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{
+            style: { borderRadius: "12px", fontSize: "14px" },
+          }}
+        />
+      </body>
     </html>
   );
 }
