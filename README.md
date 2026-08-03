@@ -163,81 +163,23 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### Environment Variables
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-Create a `.env.local` file in the project root:
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-```env
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=w2a_intelligence
-DB_SSL=false
-```
+## Learn More
 
-For cloud MySQL (like Aiven), set `DB_SSL=true` and use the managed host, port and credentials.
+To learn more about Next.js, take a look at the following resources:
 
----
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## 📁 Project Structure
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-```
-w2a-intelligence/
-├── database/               # SQL schema, seed and migration files
-├── src/
-│   ├── app/
-│   │   ├── (app)/          # Authenticated pages (dashboard, modules)
-│   │   ├── api/            # API route handlers
-│   │   ├── login/
-│   │   └── register/
-│   ├── components/         # Reusable UI components
-│   └── lib/
-│       ├── db.js           # MySQL pool + query helpers
-│       ├── allocation.js   # The allocation engine
-│       ├── analytics.js    # Analytics queries
-│       └── session.js      # Auth + role guards
-└── public/
-```
+## Deploy on Vercel
 
----
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-## 👥 Demo Accounts
-
-| Role | Email | Password |
-|------|-------|----------|
-| Administrator | `admin@w2a.com` | `admin123` |
-| Collector | `rakib@w2a.com` | `collect123` |
-| Company Manager | `green@w2a.com` | `company123` |
-
-> ⚠️ Passwords are stored in plaintext for this academic prototype. **Do not use this authentication approach in production** — see the Limitations section of the project report.
-
----
-
-## ☁️ Deployment
-
-The live version runs on:
-- **Vercel** — hosts the Next.js application
-- **Aiven** — managed MySQL 8 instance (Bangalore region)
-
-Environment-specific config is supplied through environment variables, so the same codebase runs unchanged locally (XAMPP) and in production (Aiven).
-
----
-
-## 📖 About
-
-This project was developed as a **Database Management System Based Project (LAB)** for the Department of Computer Science and Engineering, **Comilla University**.
-
-The goal was to demonstrate that a well-designed relational database is not just a store of records, but an active decision-making instrument — one where a genuinely useful allocation decision can be made with a single well-constructed SQL query, no machine learning required.
-
----
-
-<div align="center">
-
-**Built with ♻️ for a cleaner city**
-
-[Live Demo](https://w2-a-intelligence-phi.vercel.app/) · [Report an Issue](https://github.com/shahed-hassan-fz-rabbi/W2A-Intelligence/issues)
-
-</div>
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

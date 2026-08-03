@@ -4,234 +4,390 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Leaf, Recycle, MapPin, Factory, Package, TrendingUp, ArrowRight,
+  ShieldCheck, Award, Activity, Globe, CheckCircle2
 } from "lucide-react";
+import { 
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
+  PieChart, Pie, Cell 
+} from "recharts";
 import PublicNavbar from "./PublicNavbar";
-import Footer from "./Footer"; // আপনার তৈরি করা মেইন ফুটার
+import Footer from "./Footer";
 
 const CAT_COLOR = {
-  Plastic: "bg-blue-500",
-  Organic: "bg-brand-500",
-  Metal: "bg-gray-500",
+  Plastic: "#2563eb",  // Blue
+  Organic: "#16a34a",  // Green
+  Metal: "#6b7280",    // Gray
+  Paper: "#d97706",    // Amber
+  Glass: "#06b6d4",    // Cyan
 };
+
+const CHART_COLORS = ["#2563eb", "#16a34a", "#d97706", "#06b6d4", "#6b7280"];
 
 export default function PublicHome({ session }) {
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/public/stats")
       .then((r) => r.json())
-      .then((d) => setData(d.error ? null : d))
-      .catch(() => setData(null));
+      .then((d) => {
+        setData(d.error ? null : d);
+        setLoading(false);
+      })
+      .catch(() => {
+        setData(null);
+        setLoading(false);
+      });
   }, []);
 
   const o = data?.overview;
-  const maxZone = data
-    ? Math.max(...data.zones.map((z) => Number(z.total_kg)), 1)
-    : 1;
-  const maxCat = data
-    ? Math.max(...data.categories.map((c) => Number(c.collected_kg)), 1)
-    : 1;
+  const maxZone = data?.zones?.length ? Math.max(...data.zones.map((z) => Number(z.total_kg)), 1) : 1;
+  const maxCat = data?.categories?.length ? Math.max(...data.categories.map((c) => Number(c.collected_kg)), 1) : 1;
+
+  const monthlyChartData = data?.monthlyStats || [];
+
+  // Dynamic Trees Equivalent Calculation (1 tree ~ 21kg CO2)
+  const carbonSavedKg = Number(o?.carbon_saved || 0);
+  const treesEquivalent = Math.round(carbonSavedKg / 21);
+
+  // Dynamic Goal Progress (Assuming 5000kg target or dynamic from API)
+  const targetGoalKg = 5000;
+  const goalProgressPercent = Math.min(Math.round((carbonSavedKg / targetGoalKg) * 100), 100);
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="min-h-screen bg-canvas selection:bg-brand-500 selection:text-white text-ink">
       <PublicNavbar session={session} />
 
-      {/* Hero */}
-      <section className="border-b border-line bg-surface">
-        <div className="mx-auto max-w-6xl px-4 py-14 text-center sm:px-6 sm:py-20">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
+     
+     {/* ─── Live Environmental Awareness Ticker ─── */}
+<div className="relative flex items-center overflow-hidden border-b border-emerald-900 bg-emerald-950 py-2 shadow-inner">
+
+  {/* Left Label */}
+  <div className="absolute left-0 top-0 bottom-0 z-20 flex items-center gap-2 bg-emerald-900 px-4 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
+    <span className="relative flex h-2 w-2">
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+      <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+    </span>
+    LIVE
+  </div>
+
+  {/* Marquee */}
+  <div className="ml-24 w-full overflow-hidden whitespace-nowrap">
+    <div className="flex w-max animate-marquee gap-16 text-xs font-medium text-emerald-100">
+
+      <span>
+        🚮 Please dispose of waste only in designated bins. Littering streets,
+        rivers, and public places harms the environment.
+      </span>
+
+      <span>
+        ♻️ Every recycled kilogram reduces landfill waste, saves natural
+        resources, and supports a cleaner, greener city.
+      </span>
+
+      <span>
+        W2A Intelligence monitors waste collection, company allocation,
+        recycling progress, and environmental impact in real time.
+      </span>
+
+      <span>
+        Together we can build a Smart City by turning Waste into Valuable
+        Assets.
+      </span>
+
+      {/* Duplicate for seamless scrolling */}
+      <span>
+        🚮 Please dispose of waste only in designated bins. Littering streets,
+        rivers, and public places harms the environment.
+      </span>
+
+      <span>
+        ♻️ Every recycled kilogram reduces landfill waste, saves natural
+        resources, and supports a cleaner, greener city.
+      </span>
+
+      <span>
+        🌱 W2A Intelligence monitors waste collection, company allocation,
+        recycling progress, and environmental impact in real time.
+      </span>
+
+      <span>
+        🌍 Together we can build a Smart City by turning Waste into Valuable
+        Assets.
+      </span>
+
+    </div>
+  </div>
+</div>
+      {/* ─── Hero Section with Background Image & Gradient Overlay (Optimized Height) ─── */}
+      <section
+        className="relative overflow-hidden border-b border-line py-16 lg:py-22"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.6)), url('/images/hero-bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <div className="mx-auto max-w-6xl px-4 text-center sm:px-6 relative z-10">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 border border-brand-200 px-3 py-1 text-xs font-semibold text-brand-700 shadow-sm">
             <Leaf className="h-3.5 w-3.5" />
-            Open city data
+            Open City Data Platform
           </span>
-          <h1 className="mt-4 text-2xl font-bold text-ink sm:text-4xl">
-            Where does our city&apos;s waste actually go?
+
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl lg:text-5xl">
+            Where does our city&apos;s <span className="text-brand-600">waste</span> actually go?
           </h1>
+
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted sm:text-base">
-            Every kilogram collected is tracked from the street to the recycling
-            plant to the finished product. These are the live numbers — no login
-            required.
+            Every kilogram collected is tracked transparently from street bins to recycling plants and transformed into high-value assets.
           </p>
 
-          {!session && (
+          {!session ? (
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
                 href="/register"
-                className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700"
+                className="flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-600/20 transition-all hover:bg-brand-700"
               >
                 Join as staff
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/login"
-                className="rounded-lg border border-line px-5 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-canvas"
+                className="rounded-xl border border-line bg-white/85 px-5 py-2.5 text-sm font-semibold text-ink shadow-sm transition-all hover:bg-canvas"
               >
                 Sign in
               </Link>
             </div>
-          )}
-
-          {session && (
-            <p className="mt-6 text-sm text-muted">
-              Signed in as{" "}
-              <span className="font-medium text-ink">{session.name}</span> —{" "}
+          ) : (
+            <div className="mt-6 inline-flex items-center gap-3 rounded-2xl bg-white/90 border border-line px-4 py-2.5 shadow-sm backdrop-blur-md">
+              <span className="text-sm text-muted">
+                Welcome back, <span className="font-bold text-ink">{session.name}</span>
+              </span>
+              <span className="text-line">|</span>
               <Link
                 href="/dashboard"
-                className="font-medium text-brand-600 hover:underline"
+                className="text-sm font-bold text-brand-600 hover:underline flex items-center gap-1"
               >
-                open your dashboard
+                Open dashboard <ArrowRight className="h-3.5 w-3.5" />
               </Link>
-            </p>
+            </div>
           )}
+
+          {/* ─── Waste Journey Flow Indicator Bar ─── */}
+          <div className="mt-10 pt-8  border-line/60">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-black-100 mb-4">
+              End-to-End Traceability Pipeline
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 max-w-3xl mx-auto">
+              {[
+                { label: "1. Collected", icon: Recycle, desc: "Streets" },
+                { label: "2. Allocated", icon: MapPin, desc: "Zones" },
+                { label: "3. Processed", icon: Factory, desc: "Partners" },
+                { label: "4. Recovered", icon: Package, desc: "Assets" },
+                { label: "5. Impact", icon: Leaf, desc: "CO₂ Saved" },
+              ].map((step, idx) => (
+                <div key={idx} className="flex flex-col items-center p-2.5 rounded-xl bg-white/80 border border-line shadow-sm">
+                  <div className="p-1.5 rounded-lg bg-brand-50 text-brand-600 mb-1">
+                    <step.icon className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-bold text-ink">{step.label}</span>
+                  <span className="text-[10px] text-muted">{step.desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* KPIs */}
+      {/* ─── KPIs Section (API Driven with Zero Fallback) ─── */}
       <section id="overview" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-10 sm:px-6">
-        {!data ? (
+        {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-32 animate-pulse rounded-2xl border border-line bg-surface"
-              />
+              <div key={i} className="h-28 animate-pulse rounded-2xl border border-line bg-surface" />
             ))}
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Kpi
-              icon={Recycle}
-              label="Waste Collected"
-              value={Number(o.total_collected).toLocaleString()}
-              unit="kg"
-            />
-            <Kpi
-              icon={Factory}
-              label="Successfully Recycled"
-              value={Number(o.total_recycled).toLocaleString()}
-              unit="kg"
-              tone="blue"
-            />
-            <Kpi
-              icon={Leaf}
-              label="CO₂ Emissions Avoided"
-              value={Number(o.carbon_saved).toLocaleString()}
-              unit="kg"
-            />
-            <Kpi
-              icon={MapPin}
-              label="Zones Covered"
-              value={o.zones_served}
-              tone="amber"
-            />
+            <Kpi icon={Recycle} label="Total Waste Collected" value={Number(o?.total_collected || 0).toLocaleString()} unit="kg" />
+            <Kpi icon={Factory} label="Successfully Recycled" value={Number(o?.total_recycled || 0).toLocaleString()} unit="kg" tone="blue" />
+            <Kpi icon={Leaf} label="CO₂ Emissions Avoided" value={Number(o?.carbon_saved || 0).toLocaleString()} unit="kg" />
+            <Kpi icon={MapPin} label="Active Zones Covered" value={o?.zones_served || 0} tone="amber" />
           </div>
         )}
       </section>
 
-      {/* Zones + categories */}
+      {/* ─── Compact Environmental Impact & Carbon Banner ─── */}
+      <section className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
+  <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 p-6 sm:p-8 text-white shadow-lg relative overflow-hidden border border-emerald-900/50">
+    <div className="relative z-10 grid gap-6 md:grid-cols-3 items-center">
+      <div className="md:col-span-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-900/60 px-3 py-1 text-[11px] font-semibold text-emerald-300 mb-2 border border-emerald-700/40">
+          Climate Action & Carbon Watch
+        </span>
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+          Data-Driven Carbon Reduction
+        </h2>
+        <p className="mt-1.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
+          Every processed batch reduces toxic greenhouse gases. Total equivalent impact scales directly with verified city recycling output.
+        </p>
+      </div>
+
+      <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center shadow-inner">
+        <p className="text-xs text-slate-400">Trees Equivalent Saved</p>
+        <p className="text-2xl font-extrabold text-emerald-400 mt-0.5">{treesEquivalent.toLocaleString()} Trees</p>
+        <div className="mt-2 w-full bg-slate-800/80 rounded-full h-2 overflow-hidden border border-slate-700/50">
+          <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${goalProgressPercent}%` }} />
+        </div>
+        <span className="text-[10px] text-slate-400 mt-1 block">Goal Progress: {goalProgressPercent}%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+      {/* ─── Analytics Section: Bar Chart & Pie Chart ─── */}
+      <section className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Monthly Bar Chart */}
+          <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="text-base font-bold text-ink">Monthly Collection Growth</h2>
+                <p className="text-xs text-muted">Waste volume over recent periods</p>
+              </div>
+              <Activity className="h-4 w-4 text-brand-600" />
+            </div>
+            <div className="h-64 w-full pt-2">
+              {monthlyChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyChartData}>
+                    <XAxis dataKey="month" stroke="#888888" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#888888" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ background: "#111827", borderRadius: "8px", border: "none", color: "#fff", fontSize: "12px" }} />
+                    <Bar dataKey="kg" fill="#16a34a" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-xs text-muted">No monthly chart data recorded yet</div>
+              )}
+            </div>
+          </div>
+
+          {/* Waste Distribution Pie Chart */}
+          <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="text-base font-bold text-ink">Waste Category Breakdown</h2>
+                <p className="text-xs text-muted">Material ratios across collections</p>
+              </div>
+              <Globe className="h-4 w-4 text-blue-600" />
+            </div>
+            <div className="h-64 w-full flex items-center justify-center">
+              {data?.categories && data.categories.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={data.categories}
+                      dataKey="collected_kg"
+                      nameKey="category"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={75}
+                      innerRadius={35}
+                      paddingAngle={4}
+                      label
+                    >
+                      {data.categories.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ background: "#111827", borderRadius: "8px", border: "none", color: "#fff", fontSize: "12px" }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-xs text-muted">No distribution records found</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Zones & Categories Progress Section */}
       {data && (
         <section id="zones" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-10 sm:px-6">
           <div className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-              <h2 className="text-base font-semibold text-ink">
-                Collection by neighbourhood
-              </h2>
-              <p className="mt-0.5 mb-4 text-xs text-muted">
-                Total waste collected from each city zone
-              </p>
-              {data.zones.map((z) => (
+            <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
+              <h2 className="text-base font-bold text-ink">Collection by Neighbourhood</h2>
+              <p className="mt-0.5 mb-4 text-xs text-muted">Volume handled per municipal sector</p>
+              {data.zones.length > 0 ? data.zones.map((z) => (
                 <div key={z.area_code} className="py-2">
-                  <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                    <span className="truncate text-sm font-medium text-ink">
-                      {z.zone_name}
-                    </span>
-                    <span className="shrink-0 text-sm text-ink-soft">
-                      {Number(z.total_kg).toLocaleString()}
-                      <span className="ml-1 text-xs text-muted">kg</span>
+                  <div className="mb-1 flex items-baseline justify-between gap-3">
+                    <span className="truncate text-xs font-semibold text-ink">{z.zone_name}</span>
+                    <span className="shrink-0 text-xs font-bold text-ink-soft">
+                      {Number(z.total_kg).toLocaleString()} <span className="text-[10px] text-muted font-normal">kg</span>
                     </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-canvas">
                     <div
                       className="h-full rounded-full bg-brand-500"
-                      style={{
-                        width: `${Math.max(
-                          (Number(z.total_kg) / maxZone) * 100,
-                          1.5
-                        )}%`,
-                      }}
+                      style={{ width: `${Math.max((Number(z.total_kg) / maxZone) * 100, 1.5)}%` }}
                     />
                   </div>
                 </div>
-              ))}
+              )) : <p className="text-xs text-muted">No zone records available</p>}
             </div>
 
-            <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-              <h2 className="text-base font-semibold text-ink">
-                What we recycle
-              </h2>
-              <p className="mt-0.5 mb-4 text-xs text-muted">
-                Waste categories and the CO₂ each one saves
-              </p>
-              {data.categories.map((c) => (
+            <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
+              <h2 className="text-base font-bold text-ink">Material Recovery Stats</h2>
+              <p className="mt-0.5 mb-4 text-xs text-muted">Carbon offsets per material category</p>
+              {data.categories.length > 0 ? data.categories.map((c) => (
                 <div key={c.category} className="py-2">
-                  <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                    <span className="text-sm font-medium text-ink">
-                      {c.category}
-                    </span>
-                    <span className="shrink-0 text-sm text-ink-soft">
-                      {Number(c.collected_kg).toLocaleString()}
-                      <span className="ml-1 text-xs text-muted">kg</span>
+                  <div className="mb-1 flex items-baseline justify-between gap-3">
+                    <span className="text-xs font-semibold text-ink">{c.category}</span>
+                    <span className="shrink-0 text-xs font-bold text-ink-soft">
+                      {Number(c.collected_kg).toLocaleString()} <span className="text-[10px] text-muted font-normal">kg</span>
                     </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-canvas">
                     <div
-                      className={`h-full rounded-full ${
-                        CAT_COLOR[c.category] || "bg-brand-500"
-                      }`}
+                      className="h-full rounded-full"
                       style={{
-                        width: `${Math.max(
-                          (Number(c.collected_kg) / maxCat) * 100,
-                          1.5
-                        )}%`,
+                        backgroundColor: CAT_COLOR[c.category] || "#16a34a",
+                        width: `${Math.max((Number(c.collected_kg) / maxCat) * 100, 1.5)}%`,
                       }}
                     />
                   </div>
-                  <p className="mt-1 text-xs text-brand-700">
+                  <p className="mt-0.5 text-[11px] text-brand-700">
                     {Number(c.carbon_kg).toLocaleString()} kg CO₂ avoided
                   </p>
                 </div>
-              ))}
+              )) : <p className="text-xs text-muted">No category records available</p>}
             </div>
           </div>
         </section>
       )}
 
-      {/* Products */}
+      {/* Products Generated Section */}
       {data && data.products.length > 0 && (
-        <section id="products" className="scroll-mt-20 border-y border-line bg-surface">
-          <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-            <div className="mb-5 flex items-center gap-2">
+        <section id="products" className="scroll-mt-20 border-y border-line bg-surface py-10">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mb-6 flex items-center gap-2">
               <Package className="h-5 w-5 text-brand-600" />
-              <h2 className="text-base font-semibold text-ink">
-                Products made from your waste
-              </h2>
+              <h2 className="text-base font-bold text-ink">Products Generated from Municipal Waste</h2>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {data.products.map((p, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border border-line bg-canvas p-4"
-                >
-                  <p className="text-sm font-medium text-ink">
-                    {p.product_name}
-                  </p>
-                  <p className="mt-1 text-lg font-bold text-brand-600">
+                <div key={i} className="rounded-xl border border-line bg-canvas p-4 shadow-sm">
+                  <p className="text-xs font-bold text-ink">{p.product_name}</p>
+                  <p className="mt-1 text-xl font-extrabold text-brand-600">
                     {Number(p.total_qty).toLocaleString()}
-                    <span className="ml-1 text-xs font-medium text-muted">
-                      {p.unit}
-                    </span>
+                    <span className="ml-1 text-[11px] font-semibold text-muted">{p.unit}</span>
                   </p>
-                  <p className="mt-0.5 text-xs text-muted">
-                    from {p.category.toLowerCase()} waste
+                  <p className="mt-1 text-[11px] text-muted flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                    From {p.category.toLowerCase()} waste
                   </p>
                 </div>
               ))}
@@ -240,81 +396,64 @@ export default function PublicHome({ session }) {
         </section>
       )}
 
-      {/* Companies */}
-      {data && (
+      {/* Recycling Partners Section */}
+      {data && data.companies.length > 0 && (
         <section id="partners" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-10 sm:px-6">
-          <div className="mb-5 flex items-center gap-2">
+          <div className="mb-6 flex items-center gap-2">
             <Factory className="h-5 w-5 text-brand-600" />
-            <h2 className="text-base font-semibold text-ink">
-              Recycling partners
-            </h2>
+            <h2 className="text-base font-bold text-ink">Verified Recycling Partners</h2>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.companies.map((c, i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-line bg-surface p-4"
-              >
-                <p className="text-sm font-semibold text-ink">{c.name}</p>
+              <div key={i} className="rounded-xl border border-line bg-surface p-4 shadow-sm">
+                <div className="flex items-start justify-between">
+                  <p className="text-sm font-bold text-ink">{c.name}</p>
+                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                    Verified
+                  </span>
+                </div>
                 <p className="mt-0.5 text-xs text-muted">{c.location}</p>
-                <p className="mt-2 inline-block rounded bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700">
-                  {c.handles || "—"}
-                </p>
-                <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-soft">
-                  <TrendingUp className="h-3.5 w-3.5 text-brand-600" />
-                  {Number(c.processed_kg).toLocaleString()} kg processed
-                </p>
+                <div className="mt-3 flex items-center justify-between border-t border-line/60 pt-2.5">
+                  <span className="text-[10px] font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded">
+                    {c.handles || "General"}
+                  </span>
+                  <p className="flex items-center gap-1 text-[11px] font-bold text-ink-soft">
+                    <TrendingUp className="h-3 w-3 text-brand-600" />
+                    {Number(c.processed_kg).toLocaleString()} kg processed
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </section>
       )}
 
-      {/* How it works */}
-      <section id="how" className="scroll-mt-20 border-t border-line bg-surface">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <h2 className="mb-6 text-center text-base font-semibold text-ink">
-            How the system works
+      {/* How the System Works Section */}
+      <section id="how" className="scroll-mt-20 border-t border-line bg-surface py-12">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <h2 className="mb-2 text-center text-lg font-extrabold text-ink">
+            How W2A Intelligence Works
           </h2>
+          <p className="text-center text-xs text-muted mb-8 max-w-md mx-auto">
+            Complete database workflow linking municipal field collection to partner recycling plants.
+          </p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              {
-                n: "01",
-                t: "Collected",
-                d: "Field collectors log every pickup with its zone, waste type and weight.",
-              },
-              {
-                n: "02",
-                t: "Matched",
-                d: "The system automatically picks the best recycler based on capability and current workload.",
-              },
-              {
-                n: "03",
-                t: "Processed",
-                d: "The recycling partner updates progress until the batch is complete.",
-              },
-              {
-                n: "04",
-                t: "Recovered",
-                d: "Finished products are recorded, closing the loop from waste to asset.",
-              },
+              { n: "01", t: "Collected", d: "Collectors log municipal pickups with precise zoning and weights." },
+              { n: "02", t: "Matched", d: "System assigns loads automatically to certified recycling plants." },
+              { n: "03", t: "Processed", d: "Plants update operational milestones in real time until batch completion." },
+              { n: "04", t: "Recovered", d: "Finished outputs are recorded, closing the loop into commercial assets." },
             ].map((s) => (
-              <div
-                key={s.n}
-                className="rounded-xl border border-line bg-canvas p-5"
-              >
+              <div key={s.n} className="rounded-xl border border-line bg-canvas p-5 shadow-sm">
                 <span className="text-xs font-bold text-brand-600">{s.n}</span>
-                <p className="mt-1 text-sm font-semibold text-ink">{s.t}</p>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted">
-                  {s.d}
-                </p>
+                <p className="mt-1 text-sm font-bold text-ink">{s.t}</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted">{s.d}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── কাস্টম প্রফেশনাল ফুটার ─── */}
       <Footer />
     </div>
   );
@@ -327,17 +466,15 @@ function Kpi({ icon: Ico, label, value, unit, tone = "brand" }) {
     amber: "bg-amber-50 text-amber-700",
   };
   return (
-    <div className="rounded-2xl border border-line bg-surface p-5">
-      <div className={`inline-flex rounded-lg p-2 ${tones[tone]}`}>
+    <div className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+      <div className={`inline-flex rounded-xl p-2.5 ${tones[tone]}`}>
         <Ico className="h-4 w-4" />
       </div>
-      <p className="mt-3 text-2xl font-bold text-ink">
+      <p className="mt-3 text-2xl font-extrabold text-ink tracking-tight">
         {value}
-        {unit && (
-          <span className="ml-1 text-sm font-medium text-muted">{unit}</span>
-        )}
+        {unit && <span className="ml-1 text-xs font-semibold text-muted">{unit}</span>}
       </p>
-      <p className="mt-0.5 text-xs text-muted">{label}</p>
+      <p className="mt-0.5 text-xs font-medium text-muted">{label}</p>
     </div>
   );
 }

@@ -96,12 +96,24 @@ export default function RegisterPage() {
     "w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-canvas p-4">
-      <div className="w-full max-w-md">
+    <main className="flex min-h-screen items-center justify-center bg-canvas p-4 relative">
+      
+      {/* ─── Public Home / Profile Back Button ─── */}
+      <div className="absolute top-6 left-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-brand-600 transition-colors bg-surface border border-line px-3.5 py-2 rounded-xl shadow-sm"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Public Portal
+        </Link>
+      </div>
+
+      <div className="w-full max-w-md mt-8">
         <div className="mb-6 text-center">
           <Link
             href="/"
-            className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-lg font-bold text-white"
+            className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-lg font-bold text-white shadow-md"
           >
             W2A
           </Link>
@@ -121,8 +133,9 @@ export default function RegisterPage() {
               return (
                 <button
                   key={r.value}
+                  type="button"
                   onClick={() => pickRole(r.value)}
-                  className="flex w-full items-start gap-3 rounded-2xl border border-line bg-surface p-5 text-left transition hover:border-brand-500 hover:bg-brand-50"
+                  className="flex w-full items-start gap-3 rounded-2xl border border-line bg-surface p-5 text-left transition hover:border-brand-500 hover:bg-brand-50 shadow-sm"
                 >
                   <span className="rounded-lg bg-brand-100 p-2.5 text-brand-700">
                     <RoleIcon className="h-5 w-5" />
@@ -139,7 +152,7 @@ export default function RegisterPage() {
               );
             })}
 
-            <p className="rounded-lg bg-canvas px-4 py-3 text-xs text-muted">
+            <p className="rounded-lg bg-surface border border-line px-4 py-3 text-xs text-muted shadow-sm">
               Administrator accounts are created by the system administrator and
               cannot be registered here.
             </p>
@@ -150,7 +163,7 @@ export default function RegisterPage() {
         {step === 2 && (
           <form
             onSubmit={handleSubmit}
-            className="rounded-2xl border border-line bg-surface p-6"
+            className="rounded-2xl border border-line bg-surface p-6 shadow-sm"
           >
             <button
               type="button"
@@ -267,7 +280,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
+              className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60 shadow-md"
             >
               {saving ? "Creating account…" : "Create Account"}
             </button>

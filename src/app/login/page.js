@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { notify } from "@/lib/toast";
+import { ArrowLeft } from "lucide-react"; 
 
 const DEMO = [
   { label: "Admin", email: "admin@w2a.com", password: "admin123" },
@@ -47,10 +48,22 @@ export default function LoginPage() {
     "w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-canvas p-4">
-      <div className="w-full max-w-sm">
+    <main className="flex min-h-screen items-center justify-center bg-canvas p-4 relative">
+      
+      {/* ─── Public Home / Profile Back Button ─── */}
+      <div className="absolute top-6 left-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-brand-600 transition-colors bg-surface border border-line px-3.5 py-2 rounded-xl shadow-sm"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Public Portal
+        </Link>
+      </div>
+
+      <div className="w-full max-w-sm mt-8">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-lg font-bold text-white">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-lg font-bold text-white shadow-md">
             W2A
           </div>
           <h1 className="text-xl font-bold text-ink">W2A Intelligence</h1>
@@ -61,7 +74,7 @@ export default function LoginPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-line bg-surface p-6"
+          className="rounded-2xl border border-line bg-surface p-6 shadow-sm"
         >
           <label className="mb-1.5 block text-sm font-medium text-ink-soft">
             Email
@@ -90,7 +103,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
+            className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60 shadow-md"
           >
             {loading ? "Signing in…" : "Sign In"}
           </button>
@@ -106,12 +119,13 @@ export default function LoginPage() {
           </Link>
         </p>
 
-        <div className="mt-4 rounded-xl border border-line bg-surface p-4">
+        <div className="mt-4 rounded-xl border border-line bg-surface p-4 shadow-sm">
           <p className="mb-2 text-xs font-semibold text-muted">DEMO ACCOUNTS</p>
           <div className="flex flex-wrap gap-2">
             {DEMO.map((d) => (
               <button
                 key={d.email}
+                type="button"
                 onClick={() => {
                   setEmail(d.email);
                   setPassword(d.password);
