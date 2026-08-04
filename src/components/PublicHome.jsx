@@ -73,15 +73,15 @@ export default function PublicHome({ session }) {
 
   {/* Marquee */}
   <div className="ml-24 w-full overflow-hidden whitespace-nowrap">
-    <div className="flex w-max animate-marquee gap-16 text-xs font-medium text-emerald-100">
+    <div className="flex w-max animate-marquee gap-12 text-xs font-medium text-emerald-100">
 
       <span>
-        🚮 Please dispose of waste only in designated bins. Littering streets,
+        Please dispose of waste only in designated bins. Littering streets,
         rivers, and public places harms the environment.
       </span>
 
       <span>
-        ♻️ Every recycled kilogram reduces landfill waste, saves natural
+        Every recycled kilogram reduces landfill waste, saves natural
         resources, and supports a cleaner, greener city.
       </span>
 
@@ -97,22 +97,22 @@ export default function PublicHome({ session }) {
 
       {/* Duplicate for seamless scrolling */}
       <span>
-        🚮 Please dispose of waste only in designated bins. Littering streets,
+        Please dispose of waste only in designated bins. Littering streets,
         rivers, and public places harms the environment.
       </span>
 
       <span>
-        ♻️ Every recycled kilogram reduces landfill waste, saves natural
+        Every recycled kilogram reduces landfill waste, saves natural
         resources, and supports a cleaner, greener city.
       </span>
 
       <span>
-        🌱 W2A Intelligence monitors waste collection, company allocation,
+        W2A Intelligence monitors waste collection, company allocation,
         recycling progress, and environmental impact in real time.
       </span>
 
       <span>
-        🌍 Together we can build a Smart City by turning Waste into Valuable
+        Together we can build a Smart City by turning Waste into Valuable
         Assets.
       </span>
 
