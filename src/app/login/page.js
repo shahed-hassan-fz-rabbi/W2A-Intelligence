@@ -119,24 +119,7 @@ export default function LoginPage() {
           </Link>
         </p>
 
-        <div className="mt-4 rounded-xl border border-line bg-surface p-4 shadow-sm">
-          <p className="mb-2 text-xs font-semibold text-muted">DEMO ACCOUNTS</p>
-          <div className="flex flex-wrap gap-2">
-            {DEMO.map((d) => (
-              <button
-                key={d.email}
-                type="button"
-                onClick={() => {
-                  setEmail(d.email);
-                  setPassword(d.password);
-                }}
-                className="rounded-lg bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 transition hover:bg-brand-100"
-              >
-                {d.label}
-              </button>
-            ))}
-          </div>
-        </div>
+       
       </div>
     </main>
   );
