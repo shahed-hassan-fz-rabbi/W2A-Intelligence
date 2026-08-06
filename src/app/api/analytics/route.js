@@ -7,7 +7,7 @@ import {
   getCategoryStats,
   getActivityFeed,
   getAlerts,
-  getDailyTrend,
+  getMonthlyTrend,
 } from "@/lib/analytics";
 
 export async function GET(request) {
@@ -29,7 +29,7 @@ export async function GET(request) {
         getCategoryStats(from, to),
         getActivityFeed(15),
         getAlerts(),
-        getDailyTrend(14),
+        getMonthlyTrend(),
       ]);
 
     return NextResponse.json({

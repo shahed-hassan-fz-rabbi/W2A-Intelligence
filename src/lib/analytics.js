@@ -8,7 +8,6 @@ function dateClause(from, to, col = "wc.collection_date") {
   return { sql: parts.length ? " AND " + parts.join(" AND ") : "", params };
 }
 
-
 export async function getOverview(from, to) {
   const d = dateClause(from, to);
   const [row] = await query(
@@ -22,7 +21,7 @@ export async function getOverview(from, to) {
        ROUND(SUM(a.company_id IS NOT NULL) / NULLIF(COUNT(a.assignment_id),0) * 100, 1)
          AS assignment_rate,
        COALESCE(ROUND(SUM(CASE WHEN a.status = 'Completed'
-              THEN a.processed_qty * wt.carbon_factor END), 2), 0)
+             THEN a.processed_qty * wt.carbon_factor END), 2), 0)
          AS carbon_saved_kg
      FROM WasteCollection wc
      JOIN WasteType wt      ON wc.waste_type_id = wt.waste_type_id
@@ -32,7 +31,6 @@ export async function getOverview(from, to) {
   );
   return row;
 }
-
 
 export async function getZoneStats(from, to) {
   const d = dateClause(from, to);
@@ -50,7 +48,6 @@ export async function getZoneStats(from, to) {
   );
 }
 
-
 export async function getCompanyStats() {
   return query(
     `SELECT c.company_id, c.name, c.efficiency_score,
@@ -67,7 +64,6 @@ export async function getCompanyStats() {
      ORDER BY processed_kg DESC`
   );
 }
-
 
 export async function getCategoryStats(from, to) {
   const d = dateClause(from, to);
@@ -90,7 +86,6 @@ export async function getCategoryStats(from, to) {
   );
 }
 
-
 export async function getActivityFeed(limit = 15) {
   return query(
     `SELECT 'Collection' AS event_type,
@@ -98,7 +93,7 @@ export async function getActivityFeed(limit = 15) {
             CONCAT(wt.name, ' collected from ', z.name) AS description,
             wc.quantity_kg AS quantity
      FROM WasteCollection wc
-     JOIN Zone z       ON wc.zone_id = z.zone_id
+     JOIN Zone z        ON wc.zone_id = z.zone_id
      JOIN WasteType wt ON wc.waste_type_id = wt.waste_type_id
 
      UNION
@@ -125,7 +120,6 @@ export async function getActivityFeed(limit = 15) {
   );
 }
 
-
 export async function getAlerts() {
   return query(
     `SELECT 'Unassigned Batch' AS alert_type,
@@ -133,7 +127,7 @@ export async function getAlerts() {
                    ') could not be allocated') AS message
      FROM Assignment a
      JOIN WasteCollection wc ON a.collection_id = wc.collection_id
-     JOIN WasteType wt       ON wc.waste_type_id = wt.waste_type_id
+     JOIN WasteType wt        ON wc.waste_type_id = wt.waste_type_id
      WHERE a.status = 'Unassigned'
 
      UNION ALL
@@ -148,14 +142,13 @@ export async function getAlerts() {
   );
 }
 
-/** Daily trend for the line chart */
-export async function getDailyTrend(days = 14) {
+/** Monthly trend for the line chart matching Monthly Collection Growth UI */
+export async function getMonthlyTrend() {
   return query(
-    `SELECT DATE_FORMAT(wc.collection_date, '%Y-%m-%d') AS day,
+    `SELECT DATE_FORMAT(wc.collection_date, '%b %Y') AS month,
             SUM(wc.quantity_kg) AS collected_kg
      FROM WasteCollection wc
-     WHERE wc.collection_date >= DATE_SUB(CURDATE(), INTERVAL ${Number(days)} DAY)
-     GROUP BY wc.collection_date
-     ORDER BY wc.collection_date ASC`
+     GROUP BY YEAR(wc.collection_date), MONTH(wc.collection_date), DATE_FORMAT(wc.collection_date, '%b %Y')
+     ORDER BY YEAR(wc.collection_date) ASC, MONTH(wc.collection_date) ASC`
   );
 }
