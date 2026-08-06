@@ -8,12 +8,12 @@ export const notify = {
   dismiss: (id) => toast.dismiss(id),
 };
 
-/** Promise-based toast: shows loading → success/error automatically */
+
 export function notifyPromise(promise, { loading, success, error }) {
   return toast.promise(promise, { loading, success, error });
 }
 
-/** Replaces window.confirm with a toast that has action buttons */
+
 export function confirmToast(message, onConfirm) {
   toast(message, {
     action: {

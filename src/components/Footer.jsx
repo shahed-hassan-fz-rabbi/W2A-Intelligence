@@ -38,7 +38,7 @@ export default function Footer() {
         marginTop: "clamp(1.5rem, 8vw, 6rem)",
       }}
     >
-      {/* Green gradient top border */}
+     
       <div
         className="absolute top-0 left-0 w-full h-[3px]"
         style={{
@@ -56,7 +56,7 @@ export default function Footer() {
         }}
       >
         <div className="flex flex-col gap-12 lg:flex-row lg:justify-between lg:gap-10">
-          {/* Brand + Description */}
+        
           <div className="flex flex-col items-start space-y-5 max-w-sm shrink-0">
             <Link href="/" className="flex items-center gap-3 group w-fit">
               <div
@@ -124,7 +124,7 @@ export default function Footer() {
             </form>
           </div>
 
-          {/* Link columns */}
+          
           <div className="flex flex-wrap gap-x-16 gap-y-10">
             {Object.entries(footerLinks).map(([title, links]) => (
               <div key={title} className="min-w-[140px]">
@@ -152,7 +152,7 @@ export default function Footer() {
               </div>
             ))}
 
-            {/* Connect column */}
+           
             <div className="min-w-[180px]">
               <h3
                 className="text-sm font-bold uppercase tracking-wider mb-5"
@@ -198,7 +198,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom bar — centered copyright */}
+        
         <div
           className="pt-8 mt-16 border-t flex justify-center text-center"
           style={{ borderColor: "var(--border)" }}

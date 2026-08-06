@@ -39,7 +39,7 @@ export default function ZonesClient() {
     load();
   }, [load]);
 
-  // Cities already present in the database, for the filter chips
+  
   const cities = useMemo(() => {
     const map = new Map();
     rows.forEach((r) => map.set(r.city, (map.get(r.city) || 0) + 1));
@@ -195,7 +195,7 @@ export default function ZonesClient() {
 
   return (
     <div className="space-y-4">
-      {/* City filter */}
+      
       {cities.length > 1 && (
         <div className="flex flex-wrap gap-2">
           <button
@@ -252,7 +252,7 @@ export default function ZonesClient() {
         wide
       >
         <form onSubmit={handleSubmit}>
-          {/* Quick city picker */}
+         
           {!editing && (
             <div className="mb-5">
               <p className="mb-2 text-xs font-medium text-muted">

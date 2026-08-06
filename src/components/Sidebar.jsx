@@ -18,12 +18,12 @@ export default function Sidebar({
   const pathname = usePathname();
   const items = navFor(session.role);
 
-  // Wide when pinned, hovered, or open on mobile
+  
   const wide = pinned || hovered || mobileOpen;
 
   return (
     <>
-      {/* Mobile backdrop */}
+      
       {mobileOpen && (
         <div
           onClick={onMobileClose}
@@ -40,7 +40,7 @@ export default function Sidebar({
           !pinned && hovered ? "lg:shadow-2xl" : ""
         }`}
       >
-        {/* Brand */}
+        
         <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-white/10 px-3">
           <Link
             href="/"
@@ -62,7 +62,7 @@ export default function Sidebar({
             </span>
           </span>
 
-          {/* Pin toggle (desktop) */}
+          
           {wide && (
             <button
               onClick={onTogglePin}
@@ -78,7 +78,7 @@ export default function Sidebar({
             </button>
           )}
 
-          {/* Close (mobile) */}
+          
           <button
             onClick={onMobileClose}
             className="shrink-0 rounded-lg p-1.5 text-white/60 hover:bg-white/10 lg:hidden"
@@ -88,7 +88,7 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* Nav */}
+        
         <nav className="flex-1 space-y-1 overflow-x-hidden overflow-y-auto px-2 py-3">
           {items.map((item) => {
             const active =
@@ -118,7 +118,7 @@ export default function Sidebar({
           })}
         </nav>
 
-        {/* User footer */}
+        
         <div className="shrink-0 border-t border-white/10 p-2">
           <Link
             href="/profile"

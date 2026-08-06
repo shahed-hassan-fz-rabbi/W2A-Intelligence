@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 
-// FR-4.4 — all assignments with live status
+
 export async function GET(request) {
   const auth = await requireRole();
   if (!auth.ok) {

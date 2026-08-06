@@ -30,22 +30,18 @@ const RANKING_SQL = `
   ORDER BY active_load ASC, c.efficiency_score DESC
 `;
 
-/** Returns the full ranked list — used by the "why this company?" panel. */
+
 export async function rankCompanies(wasteTypeId) {
   return query(RANKING_SQL, [wasteTypeId]);
 }
 
-/** Returns only the winner, or null if no company can handle this waste type. */
+
 export async function findBestCompany(wasteTypeId) {
   const ranked = await query(RANKING_SQL + " LIMIT 1", [wasteTypeId]);
   return ranked.length > 0 ? ranked[0] : null;
 }
 
-/**
- * FR-3.1 : auto-allocate a newly created collection
- * FR-3.4 : create Assignment with status 'Pending'
- * FR-3.5 : flag as 'Unassigned' when no eligible company exists
- */
+
 export async function allocateCollection(collectionId, wasteTypeId) {
   const existing = await query(
     "SELECT assignment_id FROM Assignment WHERE collection_id = ?",
@@ -87,7 +83,7 @@ export async function allocateCollection(collectionId, wasteTypeId) {
   };
 }
 
-/** FR-3.6 : administrator manual override */
+
 export async function reassign(assignmentId, companyId) {
   const [asg] = await query(
     `SELECT a.assignment_id, a.status, wc.waste_type_id
@@ -121,7 +117,7 @@ export async function reassign(assignmentId, companyId) {
   return { ok: true };
 }
 
-/** FR-4.2 : allowed status transitions */
+
 export const TRANSITIONS = {
   Unassigned: ["Pending"],
   Pending: ["In Progress", "Failed"],

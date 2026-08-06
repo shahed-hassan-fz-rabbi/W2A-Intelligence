@@ -104,7 +104,7 @@ export default function ProfileClient() {
         </div>
       </div>
 
-      {/* Activity stats */}
+      
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {user.role === "collector" && (
           <>
@@ -140,7 +140,7 @@ export default function ProfileClient() {
         )}
       </div>
 
-      {/* Edit form */}
+      
       <form
         onSubmit={handleSave}
         className="rounded-2xl border border-line bg-surface p-5 sm:p-6"

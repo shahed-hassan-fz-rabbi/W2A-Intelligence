@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { query, execute } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 
-// FR-1.3 — filterable list
+
 export async function GET(request) {
   const auth = await requireRole();
   if (!auth.ok) {
@@ -40,7 +40,7 @@ export async function GET(request) {
     if (from)  { sql += " AND wc.collection_date >= ?"; params.push(from); }
     if (to)    { sql += " AND wc.collection_date <= ?"; params.push(to); }
 
-    // Collectors only see their own entries
+    
     if (auth.session.role === "collector") {
       sql += " AND wc.user_id = ?";
       params.push(auth.session.user_id);
@@ -55,7 +55,7 @@ export async function GET(request) {
   }
 }
 
-// FR-1.1, FR-1.2, FR-1.4, FR-1.5
+
 export async function POST(request) {
   const auth = await requireRole("admin", "collector");
   if (!auth.ok) {
@@ -69,7 +69,7 @@ export async function POST(request) {
     const quantity_kg = Number(body.quantity_kg);
     const collection_date = body.collection_date;
 
-    // FR-1.2 — required fields
+    
     if (!zone_id || !waste_type_id || !collection_date) {
       return NextResponse.json(
         { error: "Zone, waste type and collection date are required" },
@@ -77,7 +77,7 @@ export async function POST(request) {
       );
     }
 
-    // FR-1.4 — positive non-zero quantity
+    
     if (!Number.isFinite(quantity_kg) || quantity_kg <= 0) {
       return NextResponse.json(
         { error: "Quantity must be a positive number greater than zero" },
@@ -85,7 +85,7 @@ export async function POST(request) {
       );
     }
 
-    // No future-dated collections
+    
     const today = new Date().toISOString().slice(0, 10);
     if (collection_date > today) {
       return NextResponse.json(
@@ -94,7 +94,7 @@ export async function POST(request) {
       );
     }
 
-    // FR-1.5 — duplicate guard
+    
     const dup = await query(
       `SELECT collection_id FROM WasteCollection
        WHERE zone_id = ? AND collection_date = ? AND waste_type_id = ?`,

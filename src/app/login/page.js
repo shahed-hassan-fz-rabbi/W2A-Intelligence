@@ -50,7 +50,7 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-canvas p-4 relative">
       
-      {/* ─── Public Home / Profile Back Button ─── */}
+      {/* p profile */}
       <div className="absolute top-6 left-6">
         <Link
           href="/"

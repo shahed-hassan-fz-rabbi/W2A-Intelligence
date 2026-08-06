@@ -102,7 +102,7 @@ export default function AnalyticsClient() {
         </div>
       </div>
 
-      {/* KPI cards — FR-6.1 */}
+      
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Total Waste Collected"
@@ -131,7 +131,7 @@ export default function AnalyticsClient() {
         />
       </div>
 
-      {/* Alerts — UNION ALL */}
+      {/* alerts */}
       {alerts.length > 0 && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
           <h2 className="mb-3 text-sm font-semibold text-amber-800">
@@ -151,7 +151,7 @@ export default function AnalyticsClient() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Zone heatmap — FR-6.2 */}
+        {/* Zone heatmap*/}
         <div className="rounded-2xl border border-line bg-surface p-5">
           <h2 className="mb-1 text-base font-semibold text-ink">
             Zone Waste Distribution
@@ -170,7 +170,7 @@ export default function AnalyticsClient() {
           ))}
         </div>
 
-        {/* Company performance — FR-6.3 */}
+        {/* Company performance*/}
         <div className="rounded-2xl border border-line bg-surface p-5">
           <h2 className="mb-1 text-base font-semibold text-ink">
             Company Performance
@@ -190,7 +190,7 @@ export default function AnalyticsClient() {
           ))}
         </div>
 
-        {/* Category + carbon — FR-6.4 */}
+        {/* Category + carbon*/}
         <div className="rounded-2xl border border-line bg-surface p-5">
           <h2 className="mb-1 text-base font-semibold text-ink">
             Category Breakdown & Carbon Impact
@@ -248,7 +248,7 @@ export default function AnalyticsClient() {
         </div>
       </div>
 
-      {/* Activity feed — UNION */}
+      {/* Activity feed */}
       <div className="rounded-2xl border border-line bg-surface p-5">
         <h2 className="mb-1 text-base font-semibold text-ink">
           City Activity Feed

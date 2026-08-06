@@ -1,6 +1,6 @@
 export const UNITS = ["kg", "L", "pcs", "ton"];
 
-/** Suggested output products per waste category (SRS §3.2.3) */
+
 export const PRODUCT_SUGGESTIONS = {
   Plastic: [
     "Plastic Pellets",
@@ -23,7 +23,7 @@ export const PRODUCT_SUGGESTIONS = {
   ],
 };
 
-/** FR-5.3 — waste-to-product conversion ratio */
+
 export function conversionRatio(produced, collected) {
   if (!collected || collected <= 0) return 0;
   return Number(((produced / collected) * 100).toFixed(2));

@@ -62,7 +62,7 @@ export default function Navbar({ session, onMenuClick, onDesktopToggle }) {
     return () => clearInterval(t);
   }, [pathname]);
 
-  // Close dropdowns on outside click
+ 
   useEffect(() => {
     function onClick(e) {
       if (wrapRef.current && !wrapRef.current.contains(e.target)) {
@@ -104,7 +104,7 @@ export default function Navbar({ session, onMenuClick, onDesktopToggle }) {
           <Menu className="h-5 w-5" />
         </button>
 
-        {/* Sidebar toggle — desktop pin */}
+        {/* side tog */}
         <button
           onClick={onDesktopToggle}
           className="hidden rounded-lg p-2 text-ink-soft hover:bg-brand-50 lg:block"
@@ -129,7 +129,7 @@ export default function Navbar({ session, onMenuClick, onDesktopToggle }) {
 
         <div className="flex-1" />
 
-        {/* Search */}
+       
         <div className="hidden flex-1 justify-end md:flex">
           <GlobalSearch />
         </div>
@@ -157,7 +157,7 @@ export default function Navbar({ session, onMenuClick, onDesktopToggle }) {
           </p>
         </div>
 
-        {/* System status */}
+       
         <div className="hidden items-center gap-1.5 rounded-lg bg-canvas px-2.5 py-1.5 lg:flex">
           <Circle
             className={`h-2 w-2 ${
@@ -169,7 +169,7 @@ export default function Navbar({ session, onMenuClick, onDesktopToggle }) {
           </span>
         </div>
 
-        {/* Quick actions */}
+       
         {quick.length > 0 && (
           <div className="relative">
             <button
@@ -197,7 +197,7 @@ export default function Navbar({ session, onMenuClick, onDesktopToggle }) {
           </div>
         )}
 
-        {/* Notifications */}
+        
         <div className="relative">
           <button
             onClick={() => setOpenMenu(openMenu === "bell" ? null : "bell")}
@@ -250,7 +250,7 @@ export default function Navbar({ session, onMenuClick, onDesktopToggle }) {
           )}
         </div>
 
-        {/* Theme toggle */}
+        
         <button
           onClick={toggle}
           className="rounded-lg p-2 text-ink-soft hover:bg-brand-50"
@@ -325,7 +325,7 @@ export default function Navbar({ session, onMenuClick, onDesktopToggle }) {
         </div>
       </div>
 
-      {/* Mobile search row */}
+      
       <div className="border-t border-line px-4 py-2 md:hidden">
         <GlobalSearch />
       </div>

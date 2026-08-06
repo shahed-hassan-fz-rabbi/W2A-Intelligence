@@ -20,7 +20,7 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
   });
   const [saving, setSaving] = useState(false);
 
-  // Group zones by city so the dropdowns stay readable across many cities
+ 
   const zonesByCity = useMemo(
     () =>
       Object.entries(
@@ -230,7 +230,7 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
         </form>
       </div>
 
-      {/* Filters */}
+    
       <div className="rounded-2xl border border-line bg-surface p-5">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <select
@@ -285,7 +285,7 @@ export default function CollectionClient({ zones, wasteTypes, role }) {
         </div>
       </div>
 
-      {/* Results */}
+     
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-ink">

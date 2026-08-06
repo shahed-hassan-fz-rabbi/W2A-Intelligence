@@ -9,7 +9,7 @@ export default function DataTable({ columns, rows, empty = "No records found" })
 
   return (
     <>
-      {/* Desktop table */}
+      
       <div className="hidden overflow-hidden rounded-2xl border border-line bg-surface md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -40,7 +40,7 @@ export default function DataTable({ columns, rows, empty = "No records found" })
         </div>
       </div>
 
-      {/* Mobile cards */}
+      
       <div className="space-y-3 md:hidden">
         {rows.map((row, i) => (
           <div

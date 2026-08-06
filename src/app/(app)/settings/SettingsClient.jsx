@@ -17,7 +17,7 @@ export default function SettingsClient({ role, email }) {
 
   return (
     <div className="max-w-2xl space-y-6">
-      {/* Appearance */}
+     
       <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="mb-1 text-base font-semibold text-ink">Appearance</h2>
         <p className="mb-4 text-xs text-muted">
@@ -50,7 +50,7 @@ export default function SettingsClient({ role, email }) {
         </div>
       </div>
 
-      {/* Account */}
+      
       <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="mb-4 text-base font-semibold text-ink">Account</h2>
         <dl className="divide-y divide-line text-sm">
@@ -71,7 +71,7 @@ export default function SettingsClient({ role, email }) {
         </dl>
       </div>
 
-      {/* System */}
+      
       <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="mb-4 text-base font-semibold text-ink">System</h2>
         <dl className="divide-y divide-line text-sm">

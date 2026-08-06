@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { query, execute } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 
-// FR-5.2, FR-5.4 — full traceability: Product → Assignment → Collection → Zone
+
 export async function GET(request) {
   const auth = await requireRole();
   if (!auth.ok) {
@@ -46,7 +46,7 @@ export async function GET(request) {
   }
 }
 
-// FR-5.1 — record generated products for a completed assignment
+
 export async function POST(request) {
   const auth = await requireRole("admin", "company");
   if (!auth.ok) {
@@ -74,7 +74,7 @@ export async function POST(request) {
       );
     }
 
-    // FR-5.1 — only completed assignments can generate products
+    
     const [asg] = await query(
       `SELECT a.status, a.processed_qty, wc.quantity_kg
        FROM Assignment a
@@ -92,7 +92,7 @@ export async function POST(request) {
       );
     }
 
-    // Output cannot exceed input mass (kg only)
+   
     if (unit === "kg") {
       const [sum] = await query(
         `SELECT COALESCE(SUM(quantity_produced), 0) AS total

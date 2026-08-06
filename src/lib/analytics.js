@@ -8,7 +8,7 @@ function dateClause(from, to, col = "wc.collection_date") {
   return { sql: parts.length ? " AND " + parts.join(" AND ") : "", params };
 }
 
-/** FR-6.1 — headline KPIs */
+
 export async function getOverview(from, to) {
   const d = dateClause(from, to);
   const [row] = await query(
@@ -33,7 +33,7 @@ export async function getOverview(from, to) {
   return row;
 }
 
-/** FR-6.2 — zone heatmap */
+
 export async function getZoneStats(from, to) {
   const d = dateClause(from, to);
   return query(
@@ -50,7 +50,7 @@ export async function getZoneStats(from, to) {
   );
 }
 
-/** FR-6.3 — company performance */
+
 export async function getCompanyStats() {
   return query(
     `SELECT c.company_id, c.name, c.efficiency_score,
@@ -68,7 +68,7 @@ export async function getCompanyStats() {
   );
 }
 
-/** FR-6.4 — category breakdown with carbon */
+
 export async function getCategoryStats(from, to) {
   const d = dateClause(from, to);
   return query(
@@ -90,7 +90,7 @@ export async function getCategoryStats(from, to) {
   );
 }
 
-/** Q6 — UNION activity feed */
+
 export async function getActivityFeed(limit = 15) {
   return query(
     `SELECT 'Collection' AS event_type,
@@ -125,7 +125,7 @@ export async function getActivityFeed(limit = 15) {
   );
 }
 
-/** Q7 — UNION ALL alerts */
+
 export async function getAlerts() {
   return query(
     `SELECT 'Unassigned Batch' AS alert_type,

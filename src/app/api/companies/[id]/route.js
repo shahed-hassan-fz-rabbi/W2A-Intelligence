@@ -12,7 +12,7 @@ export async function PATCH(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
-    // Toggle active state only
+    
     if (body.is_active !== undefined && body.name === undefined) {
       await execute("UPDATE Company SET is_active = ? WHERE company_id = ?", [
         body.is_active ? 1 : 0,

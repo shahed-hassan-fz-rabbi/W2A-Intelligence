@@ -14,7 +14,7 @@ export function getPool() {
       connectionLimit: 10,
       queueLimit: 0,
       decimalNumbers: true,
-      // Cloud providers require TLS; local XAMPP does not
+      
       ssl:
         process.env.DB_SSL === "true"
           ? { rejectUnauthorized: false }

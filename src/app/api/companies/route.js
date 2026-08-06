@@ -29,7 +29,7 @@ export async function GET(request) {
       return NextResponse.json(rows);
     }
 
-    // Full company list with capabilities and live workload
+    
     const rows = await query(
       `SELECT c.company_id, c.name, c.location, c.contact_email, c.contact_phone,
               c.efficiency_score, c.capacity_kg, c.is_active,

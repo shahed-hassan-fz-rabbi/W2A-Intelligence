@@ -3,8 +3,7 @@ import { query, execute } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { reassign, canTransition, TRANSITIONS } from "@/lib/allocation";
 
-// FR-4.1, FR-4.2, FR-4.3 — status update
-// FR-3.6 — manual override (admin only)
+
 export async function PATCH(request, { params }) {
   const auth = await requireRole("admin", "company");
   if (!auth.ok) {
@@ -15,7 +14,7 @@ export async function PATCH(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
-    // ---- Manual reassignment ----
+    
     if (body.company_id !== undefined) {
       if (auth.session.role !== "admin") {
         return NextResponse.json(
@@ -30,7 +29,7 @@ export async function PATCH(request, { params }) {
       });
     }
 
-    // ---- Status transition ----
+    
     const nextStatus = body.status;
     if (!nextStatus) {
       return NextResponse.json({ error: "No status provided" }, { status: 400 });

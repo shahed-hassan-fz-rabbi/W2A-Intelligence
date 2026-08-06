@@ -69,7 +69,7 @@ export default function PublicNavbar({ session }) {
           </span>
         </Link>
 
-        {/* Section links */}
+        
         <nav className="hidden flex-1 items-center justify-center gap-6 lg:flex">
           {LINKS.map((l) => (
             <a
@@ -84,7 +84,7 @@ export default function PublicNavbar({ session }) {
 
         <div className="flex-1 lg:hidden" />
 
-        {/* Right side — changes with auth state */}
+        
         {session ? (
           <div className="flex shrink-0 items-center gap-2">
             <Link
@@ -165,7 +165,7 @@ export default function PublicNavbar({ session }) {
           </div>
         )}
 
-        {/* Mobile menu button */}
+        
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="rounded-lg p-2 text-ink-soft hover:bg-brand-50 lg:hidden"
@@ -175,7 +175,7 @@ export default function PublicNavbar({ session }) {
         </button>
       </div>
 
-      {/* Mobile section links */}
+      
       {menuOpen && (
         <nav className="border-t border-line px-4 py-2 lg:hidden">
           {LINKS.map((l) => (

@@ -132,7 +132,7 @@ export default function ProductsClient({ summary, role }) {
 
   return (
     <div className="space-y-6">
-      {/* Summary */}
+      
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total Products" value={summary.total_products} icon="box" />
         <StatCard label="Total Output" value={Number(summary.total_kg).toFixed(0)} unit="kg" icon="build" tone="blue" />
@@ -140,7 +140,7 @@ export default function ProductsClient({ summary, role }) {
         <StatCard label="Avg Conversion" value={summary.avg_ratio} unit="%" icon="chart" />
       </div>
 
-      {/* Entry form */}
+      
       <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="mb-4 text-base font-semibold text-ink">
           Record Generated Asset

@@ -24,7 +24,7 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Role-specific activity summary
+    
     let stats = {};
     if (user.role === "collector") {
       const [s] = await query(

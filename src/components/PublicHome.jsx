@@ -46,11 +46,11 @@ export default function PublicHome({ session }) {
 
   const monthlyChartData = data?.monthlyStats || [];
 
-  // Dynamic Trees Equivalent Calculation (1 tree ~ 21kg CO2)
+  
   const carbonSavedKg = Number(o?.carbon_saved || 0);
   const treesEquivalent = Math.round(carbonSavedKg / 21);
 
-  // Dynamic Goal Progress (Assuming 5000kg target or dynamic from API)
+  
   const targetGoalKg = 5000;
   const goalProgressPercent = Math.min(Math.round((carbonSavedKg / targetGoalKg) * 100), 100);
 
@@ -59,10 +59,10 @@ export default function PublicHome({ session }) {
       <PublicNavbar session={session} />
 
      
-     {/* ─── Live Environmental Awareness Ticker ─── */}
+     
 <div className="relative flex items-center overflow-hidden border-b border-emerald-900 bg-emerald-950 py-2 shadow-inner">
 
-  {/* Left Label */}
+  
   <div className="absolute left-0 top-0 bottom-0 z-20 flex items-center gap-2 bg-emerald-900 px-4 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
     <span className="relative flex h-2 w-2">
       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
@@ -71,7 +71,7 @@ export default function PublicHome({ session }) {
     Attention
   </div>
 
-  {/* Marquee */}
+ 
   <div className="ml-24 w-full overflow-hidden whitespace-nowrap">
     <div className="flex w-max animate-marquee gap-12 text-xs font-medium text-emerald-100">
 
@@ -95,7 +95,7 @@ export default function PublicHome({ session }) {
         Assets.
       </span>
 
-      {/* Duplicate for seamless scrolling */}
+     
       <span>
         Please dispose of waste only in designated bins. Littering streets,
         rivers, and public places harms the environment.
@@ -119,7 +119,7 @@ export default function PublicHome({ session }) {
     </div>
   </div>
 </div>
-      {/* ─── Hero Section with Background Image & Gradient Overlay (Optimized Height) ─── */}
+      
       <section
         className="relative overflow-hidden border-b border-line py-16 lg:py-22"
         style={{
@@ -175,7 +175,7 @@ export default function PublicHome({ session }) {
             </div>
           )}
 
-          {/* ─── Waste Journey Flow Indicator Bar ─── */}
+          
           <div className="mt-10 pt-8  border-line/60">
             <p className="text-[11px] font-bold uppercase tracking-wider text-black-100 mb-4">
               End-to-End Traceability Pipeline
@@ -201,7 +201,7 @@ export default function PublicHome({ session }) {
         </div>
       </section>
 
-      {/* ─── KPIs Section (API Driven with Zero Fallback) ─── */}
+      
       <section id="overview" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-10 sm:px-6">
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -219,7 +219,7 @@ export default function PublicHome({ session }) {
         )}
       </section>
 
-      {/* ─── Compact Environmental Impact & Carbon Banner ─── */}
+      
       <section className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
   <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 p-6 sm:p-8 text-white shadow-lg relative overflow-hidden border border-emerald-900/50">
     <div className="relative z-10 grid gap-6 md:grid-cols-3 items-center">
@@ -247,10 +247,10 @@ export default function PublicHome({ session }) {
   </div>
 </section>
 
-      {/* ─── Analytics Section: Bar Chart & Pie Chart ─── */}
+      
       <section className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Monthly Bar Chart */}
+          
           <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <div>
@@ -275,7 +275,7 @@ export default function PublicHome({ session }) {
             </div>
           </div>
 
-          {/* Waste Distribution Pie Chart */}
+          
           <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <div>
@@ -314,7 +314,7 @@ export default function PublicHome({ session }) {
         </div>
       </section>
 
-      {/* Zones & Categories Progress Section */}
+      
       {data && (
         <section id="zones" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-10 sm:px-6">
           <div className="grid gap-6 lg:grid-cols-2">
@@ -369,7 +369,7 @@ export default function PublicHome({ session }) {
         </section>
       )}
 
-      {/* Products Generated Section */}
+      
       {data && data.products.length > 0 && (
         <section id="products" className="scroll-mt-20 border-y border-line bg-surface py-10">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -396,7 +396,7 @@ export default function PublicHome({ session }) {
         </section>
       )}
 
-      {/* Recycling Partners Section */}
+      
       {data && data.companies.length > 0 && (
         <section id="partners" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-10 sm:px-6">
           <div className="mb-6 flex items-center gap-2">
@@ -428,7 +428,7 @@ export default function PublicHome({ session }) {
         </section>
       )}
 
-      {/* How the System Works Section */}
+      
       <section id="how" className="scroll-mt-20 border-t border-line bg-surface py-12">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <h2 className="mb-2 text-center text-lg font-extrabold text-ink">

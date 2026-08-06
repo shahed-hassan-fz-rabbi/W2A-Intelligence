@@ -283,12 +283,12 @@ export default function AssignmentsClient({ companies, role }) {
         </div>
       )}
 
-      {/* Manual override modal */}
+      
       {override && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-4 sm:items-center">
           <div className="w-full max-w-md rounded-2xl bg-surface p-6">
             <h3 className="text-base font-semibold text-ink">
-              Manual Override — Assignment #{override.row.assignment_id}
+              Manual Override Assignment #{override.row.assignment_id}
             </h3>
             <p className="mt-1 mb-4 text-sm text-muted">
               Only companies capable of processing {override.row.waste_type} are

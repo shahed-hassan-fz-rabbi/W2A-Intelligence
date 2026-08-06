@@ -1,7 +1,4 @@
-/**
- * Suggestion lists only. The Zone table accepts any free-text city/country,
- * so the system is not limited to these values.
- */
+
 export const COUNTRIES = [
   "Bangladesh", "India", "Pakistan", "Nepal", "Sri Lanka",
   "Malaysia", "Singapore", "United Arab Emirates", "United Kingdom",
@@ -23,7 +20,7 @@ export const BD_CITIES = [
   { city: "Cox's Bazar",  district: "Cox's Bazar" },
 ];
 
-/** Suggests a prefix like DHK, CTG from a city name */
+
 export function suggestAreaPrefix(city) {
   if (!city) return "";
   const clean = city.replace(/[^A-Za-z ]/g, "").trim();
