@@ -148,4 +148,73 @@ CREATE TABLE Product (
   CONSTRAINT chk_qty_produced CHECK (quantity_produced > 0)
 ) ENGINE=InnoDB;
 
+
+-- Location: database/citizen_schema.sql
+CREATE TABLE IF NOT EXISTS CitizenReport (
+  report_id INT AUTO_INCREMENT PRIMARY KEY,
+  citizen_name VARCHAR(100) DEFAULT 'Anonymous',
+  citizen_phone VARCHAR(25) NULL,
+  image_url LONGTEXT NULL,
+  ai_detected_category VARCHAR(50) NOT NULL,
+  ai_confidence DECIMAL(5,2) DEFAULT 90.00,
+  priority ENUM('Low', 'Medium', 'High', 'Critical') DEFAULT 'Medium',
+  estimated_weight_kg DECIMAL(10,2) DEFAULT 10.00,
+  ai_reasoning TEXT NULL,
+  zone_id INT NULL,
+  latitude DECIMAL(10,8) NULL,
+  longitude DECIMAL(11,8) NULL,
+  status ENUM('Pending', 'Assigned', 'Resolved') DEFAULT 'Pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_report_zone FOREIGN KEY (zone_id) 
+    REFERENCES Zone(zone_id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Add base purchasing market price per kg in BDT to WasteType
+ALTER TABLE WasteType ADD COLUMN IF NOT EXISTS price_per_kg DECIMAL(10,2) DEFAULT 35.00;
+
+-- Set realistic base market buying rates per kg in Bangladesh (BDT)
+UPDATE WasteType SET price_per_kg = 45.00 WHERE category = 'Plastic';
+UPDATE WasteType SET price_per_kg = 15.00 WHERE category = 'Organic';
+UPDATE WasteType SET price_per_kg = 85.00 WHERE category = 'Metal';
+UPDATE WasteType SET price_per_kg = 25.00 WHERE category = 'Paper';
+UPDATE WasteType SET price_per_kg = 18.00 WHERE category = 'Glass';
+
+-- Create B2B Transactions Ledger for Waste Procurement
+CREATE TABLE IF NOT EXISTS Transactions (
+  transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+  assignment_id INT NOT NULL,
+  company_id INT NOT NULL,
+  waste_type_id INT NOT NULL,
+  quantity_kg DECIMAL(10,2) NOT NULL,
+  rate_per_kg DECIMAL(10,2) NOT NULL,
+  gross_amount DECIMAL(12,2) NOT NULL,
+  platform_fee_percent DECIMAL(5,2) DEFAULT 7.50,
+  platform_commission DECIMAL(12,2) NOT NULL,
+  net_payout DECIMAL(12,2) NOT NULL,
+  payment_status ENUM('Pending', 'Completed', 'Settled') DEFAULT 'Completed',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_tx_assignment FOREIGN KEY (assignment_id) REFERENCES Assignment(assignment_id) ON DELETE CASCADE,
+  CONSTRAINT fk_tx_company FOREIGN KEY (company_id) REFERENCES Company(company_id) ON DELETE CASCADE,
+  CONSTRAINT fk_tx_waste FOREIGN KEY (waste_type_id) REFERENCES WasteType(waste_type_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Seed initial transactions for completed assignments
+INSERT IGNORE INTO Transactions 
+  (assignment_id, company_id, waste_type_id, quantity_kg, rate_per_kg, gross_amount, platform_fee_percent, platform_commission, net_payout, payment_status)
+SELECT 
+  a.assignment_id,
+  a.company_id,
+  wc.waste_type_id,
+  COALESCE(a.processed_qty, wc.quantity_kg) AS quantity_kg,
+  COALESCE(wt.price_per_kg, 40.00) AS rate_per_kg,
+  (COALESCE(a.processed_qty, wc.quantity_kg) * COALESCE(wt.price_per_kg, 40.00)) AS gross_amount,
+  7.50 AS platform_fee_percent,
+  ROUND((COALESCE(a.processed_qty, wc.quantity_kg) * COALESCE(wt.price_per_kg, 40.00) * 0.075), 2) AS platform_commission,
+  ROUND((COALESCE(a.processed_qty, wc.quantity_kg) * COALESCE(wt.price_per_kg, 40.00) * 0.925), 2) AS net_payout,
+  'Settled' AS payment_status
+FROM Assignment a
+JOIN WasteCollection wc ON a.collection_id = wc.collection_id
+JOIN WasteType wt ON wc.waste_type_id = wt.waste_type_id
+WHERE a.status = 'Completed' AND a.company_id IS NOT NULL;
+
 CREATE INDEX idx_prod_date ON Product(production_date);

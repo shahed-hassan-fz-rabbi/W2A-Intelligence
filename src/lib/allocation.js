@@ -1,16 +1,10 @@
+// Location: src/lib/allocation.js
 import { query, execute } from "./db";
 
 /**
  * Intelligent Company Allocation Engine
- *
- * FR-3.2 : find all companies capable of handling the given waste type
- * FR-3.3 : rank by (a) active load ASC, (b) efficiency score DESC
- *
- * The ranking query is the heart of the system. It uses:
- *   - JOIN            → Company ⋈ CompanyWasteType  (capability filter)
- *   - LEFT JOIN       → keeps companies with ZERO pending jobs in the result
- *   - GROUP BY        → collapse assignment rows into a per-company load count
- *   - ORDER BY        → multi-criteria ranking
+ * FR-3.2: Filter capable companies by waste type
+ * FR-3.3: Rank by (a) active load ASC, (b) efficiency score DESC
  */
 const RANKING_SQL = `
   SELECT c.company_id,
@@ -30,17 +24,14 @@ const RANKING_SQL = `
   ORDER BY active_load ASC, c.efficiency_score DESC
 `;
 
-
 export async function rankCompanies(wasteTypeId) {
   return query(RANKING_SQL, [wasteTypeId]);
 }
-
 
 export async function findBestCompany(wasteTypeId) {
   const ranked = await query(RANKING_SQL + " LIMIT 1", [wasteTypeId]);
   return ranked.length > 0 ? ranked[0] : null;
 }
-
 
 export async function allocateCollection(collectionId, wasteTypeId) {
   const existing = await query(
@@ -83,7 +74,6 @@ export async function allocateCollection(collectionId, wasteTypeId) {
   };
 }
 
-
 export async function reassign(assignmentId, companyId) {
   const [asg] = await query(
     `SELECT a.assignment_id, a.status, wc.waste_type_id
@@ -116,7 +106,6 @@ export async function reassign(assignmentId, companyId) {
 
   return { ok: true };
 }
-
 
 export const TRANSITIONS = {
   Unassigned: ["Pending"],

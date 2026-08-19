@@ -1,9 +1,11 @@
+// Location: src/app/layout.js
 import "./globals.css";
 import { Toaster } from "sonner";
+import W2AChatbot from "@/components/W2AChatbot";
 
 export const metadata = {
   title: "W2A Intelligence",
-  description: "Smart Waste-to-Assets Management and Company Allocation System",
+  description: "Smart Waste-to-Assets Management Ai integratedand Company Allocation System",
 };
 
 export default function RootLayout({ children }) {
@@ -11,6 +13,11 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         {children}
+        
+        {/* Floating Database-Aware AI Assistant */}
+        <W2AChatbot />
+
+        {/* Global Toast Notifications */}
         <Toaster
           position="top-right"
           richColors

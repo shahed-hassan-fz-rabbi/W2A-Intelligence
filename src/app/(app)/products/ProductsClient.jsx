@@ -1,10 +1,13 @@
+// Location: src/app/(app)/products/ProductsClient.jsx
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
 import DataTable from "@/components/DataTable";
 import StatusBadge from "@/components/StatusBadge";
 import StatCard from "@/components/StatCard";
+import MaterialPassportModal from "@/components/MaterialPassportModal";
 import { PRODUCT_SUGGESTIONS, UNITS } from "@/lib/products";
+import { QrCode } from "lucide-react";
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
@@ -15,6 +18,7 @@ export default function ProductsClient({ summary, role }) {
   const [category, setCategory] = useState("");
   const [msg, setMsg] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
   const [form, setForm] = useState({
     assignment_id: "",
@@ -108,6 +112,20 @@ export default function ProductsClient({ summary, role }) {
         </span>
       ),
     },
+    {
+      key: "passport",
+      label: "Passport",
+      render: (r) => (
+        <button
+          type="button"
+          onClick={() => setSelectedProductId(r.product_id)}
+          className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition shadow-sm"
+        >
+          <QrCode className="h-3.5 w-3.5" />
+          <span>DMP</span>
+        </button>
+      ),
+    },
     { key: "production_date", label: "Date" },
     ...(role === "admin"
       ? [
@@ -116,6 +134,7 @@ export default function ProductsClient({ summary, role }) {
             label: "Action",
             render: (r) => (
               <button
+                type="button"
                 onClick={() => handleDelete(r.product_id)}
                 className="text-xs font-medium text-red-600 hover:underline"
               >
@@ -132,7 +151,7 @@ export default function ProductsClient({ summary, role }) {
 
   return (
     <div className="space-y-6">
-      
+      {/* Metric Summaries */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total Products" value={summary.total_products} icon="box" />
         <StatCard label="Total Output" value={Number(summary.total_kg).toFixed(0)} unit="kg" icon="build" tone="blue" />
@@ -140,7 +159,7 @@ export default function ProductsClient({ summary, role }) {
         <StatCard label="Avg Conversion" value={summary.avg_ratio} unit="%" icon="chart" />
       </div>
 
-      
+      {/* Record Generated Asset Form */}
       <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="mb-4 text-base font-semibold text-ink">
           Record Generated Asset
@@ -292,7 +311,7 @@ export default function ProductsClient({ summary, role }) {
         )}
       </div>
 
-      {/* Filter */}
+      {/* Category Filter */}
       <div className="rounded-2xl border border-line bg-surface p-5">
         <div className="grid gap-3 sm:grid-cols-3">
           <select
@@ -306,6 +325,7 @@ export default function ProductsClient({ summary, role }) {
             <option value="Metal">Metal</option>
           </select>
           <button
+            type="button"
             onClick={() => setCategory("")}
             className="rounded-lg border border-line px-4 py-2.5 text-sm font-medium text-ink-soft transition hover:bg-canvas sm:col-start-3"
           >
@@ -314,7 +334,7 @@ export default function ProductsClient({ summary, role }) {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Data Table View */}
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-ink">
@@ -330,6 +350,13 @@ export default function ProductsClient({ summary, role }) {
           empty="No products recorded yet"
         />
       </div>
+
+      {/* Digital Material Passport Modal */}
+      <MaterialPassportModal
+        isOpen={!!selectedProductId}
+        productId={selectedProductId}
+        onClose={() => setSelectedProductId(null)}
+      />
     </div>
   );
 }

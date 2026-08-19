@@ -1,7 +1,8 @@
+// Location: src/app/api/collection/route.js
 import { NextResponse } from "next/server";
 import { query, execute } from "@/lib/db";
 import { requireRole } from "@/lib/session";
-
+import { allocateCollection } from "@/lib/allocation";
 
 export async function GET(request) {
   const auth = await requireRole();
@@ -35,12 +36,11 @@ export async function GET(request) {
     `;
     const params = [];
 
-    if (zone)  { sql += " AND wc.zone_id = ?";         params.push(zone); }
-    if (type)  { sql += " AND wc.waste_type_id = ?";   params.push(type); }
-    if (from)  { sql += " AND wc.collection_date >= ?"; params.push(from); }
-    if (to)    { sql += " AND wc.collection_date <= ?"; params.push(to); }
+    if (zone) { sql += " AND wc.zone_id = ?"; params.push(zone); }
+    if (type) { sql += " AND wc.waste_type_id = ?"; params.push(type); }
+    if (from) { sql += " AND wc.collection_date >= ?"; params.push(from); }
+    if (to)   { sql += " AND wc.collection_date <= ?"; params.push(to); }
 
-    
     if (auth.session.role === "collector") {
       sql += " AND wc.user_id = ?";
       params.push(auth.session.user_id);
@@ -55,7 +55,6 @@ export async function GET(request) {
   }
 }
 
-
 export async function POST(request) {
   const auth = await requireRole("admin", "collector");
   if (!auth.ok) {
@@ -69,7 +68,6 @@ export async function POST(request) {
     const quantity_kg = Number(body.quantity_kg);
     const collection_date = body.collection_date;
 
-    
     if (!zone_id || !waste_type_id || !collection_date) {
       return NextResponse.json(
         { error: "Zone, waste type and collection date are required" },
@@ -77,7 +75,6 @@ export async function POST(request) {
       );
     }
 
-    
     if (!Number.isFinite(quantity_kg) || quantity_kg <= 0) {
       return NextResponse.json(
         { error: "Quantity must be a positive number greater than zero" },
@@ -85,7 +82,6 @@ export async function POST(request) {
       );
     }
 
-    
     const today = new Date().toISOString().slice(0, 10);
     if (collection_date > today) {
       return NextResponse.json(
@@ -94,7 +90,6 @@ export async function POST(request) {
       );
     }
 
-    
     const dup = await query(
       `SELECT collection_id FROM WasteCollection
        WHERE zone_id = ? AND collection_date = ? AND waste_type_id = ?`,
@@ -102,14 +97,12 @@ export async function POST(request) {
     );
     if (dup.length > 0) {
       return NextResponse.json(
-        {
-          error:
-            "A record already exists for this zone, date and waste type combination",
-        },
+        { error: "A record already exists for this zone, date and waste type combination" },
         { status: 409 }
       );
     }
 
+    // 1. Insert collection event
     const result = await execute(
       `INSERT INTO WasteCollection
          (zone_id, user_id, waste_type_id, quantity_kg, collection_date)
@@ -117,11 +110,19 @@ export async function POST(request) {
       [zone_id, auth.session.user_id, waste_type_id, quantity_kg, collection_date]
     );
 
+    const collectionId = result.insertId;
+
+    // 2. Trigger automatic company allocation engine
+    const allocationResult = await allocateCollection(collectionId, waste_type_id);
+
     return NextResponse.json(
       {
         ok: true,
-        collection_id: result.insertId,
-        message: "Waste collection recorded. Queued for allocation.",
+        collection_id: collectionId,
+        allocation: allocationResult,
+        message: allocationResult.allocated
+          ? `Collection recorded and allocated to ${allocationResult.company_name}`
+          : "Collection recorded but currently unassigned (no matching partner).",
       },
       { status: 201 }
     );

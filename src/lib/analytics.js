@@ -1,3 +1,4 @@
+// Location: src/lib/analytics.js
 import { query } from "./db";
 
 function dateClause(from, to, col = "wc.collection_date") {
@@ -18,13 +19,13 @@ export async function getOverview(from, to) {
          AS total_processed_kg,
        SUM(a.status = 'Completed')  AS completed_jobs,
        SUM(a.status = 'Unassigned') AS unassigned_jobs,
-       ROUND(SUM(a.company_id IS NOT NULL) / NULLIF(COUNT(a.assignment_id),0) * 100, 1)
+       ROUND(SUM(a.company_id IS NOT NULL) / NULLIF(COUNT(a.assignment_id), 0) * 100, 1)
          AS assignment_rate,
        COALESCE(ROUND(SUM(CASE WHEN a.status = 'Completed'
              THEN a.processed_qty * wt.carbon_factor END), 2), 0)
          AS carbon_saved_kg
      FROM WasteCollection wc
-     JOIN WasteType wt      ON wc.waste_type_id = wt.waste_type_id
+     JOIN WasteType wt       ON wc.waste_type_id = wt.waste_type_id
      LEFT JOIN Assignment a ON wc.collection_id = a.collection_id
      WHERE 1 = 1 ${d.sql}`,
     d.params
@@ -38,10 +39,10 @@ export async function getZoneStats(from, to) {
     `SELECT z.zone_id, z.name AS zone_name, z.area_code, z.population,
             COUNT(wc.collection_id)          AS collection_count,
             COALESCE(SUM(wc.quantity_kg), 0) AS total_waste_kg,
-            COALESCE(ROUND(SUM(wc.quantity_kg) / NULLIF(z.population,0) * 1000, 2), 0)
+            COALESCE(ROUND(SUM(wc.quantity_kg) / NULLIF(z.population, 0) * 1000, 2), 0)
               AS kg_per_1000
      FROM Zone z
-     LEFT JOIN WasteCollection wc ON z.zone_id = wc.zone_id ${d.sql.replace(" AND ", " AND ")}
+     LEFT JOIN WasteCollection wc ON z.zone_id = wc.zone_id ${d.sql}
      GROUP BY z.zone_id, z.name, z.area_code, z.population
      ORDER BY total_waste_kg DESC`,
     d.params
@@ -56,7 +57,7 @@ export async function getCompanyStats() {
             COALESCE(SUM(a.status = 'In Progress'), 0) AS active_jobs,
             COALESCE(SUM(a.processed_qty), 0)          AS processed_kg,
             COALESCE(ROUND(SUM(a.status = 'Completed')
-              / NULLIF(COUNT(a.assignment_id),0) * 100, 1), 0) AS completion_rate
+              / NULLIF(COUNT(a.assignment_id), 0) * 100, 1), 0) AS completion_rate
      FROM Company c
      LEFT JOIN Assignment a ON c.company_id = a.company_id
      WHERE c.is_active = TRUE
@@ -87,6 +88,7 @@ export async function getCategoryStats(from, to) {
 }
 
 export async function getActivityFeed(limit = 15) {
+  const parsedLimit = Math.max(1, parseInt(limit, 10) || 15);
   return query(
     `SELECT 'Collection' AS event_type,
             wc.collection_date AS event_date,
@@ -116,7 +118,7 @@ export async function getActivityFeed(limit = 15) {
      LEFT JOIN Company c ON a.company_id = c.company_id
 
      ORDER BY event_date DESC, event_type
-     LIMIT ${Number(limit)}`
+     LIMIT ${parsedLimit}`
   );
 }
 
@@ -136,17 +138,17 @@ export async function getAlerts() {
             CONCAT(c.name, ' has ', COUNT(a.assignment_id), ' active batches')
      FROM Company c
      JOIN Assignment a ON c.company_id = a.company_id
-     WHERE a.status IN ('Pending','In Progress')
+     WHERE a.status IN ('Pending', 'In Progress')
      GROUP BY c.company_id, c.name
      HAVING COUNT(a.assignment_id) >= 3`
   );
 }
 
-/** Monthly trend for the line chart matching Monthly Collection Growth UI */
 export async function getMonthlyTrend() {
   return query(
     `SELECT DATE_FORMAT(wc.collection_date, '%b %Y') AS month,
-            SUM(wc.quantity_kg) AS collected_kg
+            SUM(wc.quantity_kg) AS collected_kg,
+            SUM(wc.quantity_kg) AS kg
      FROM WasteCollection wc
      GROUP BY YEAR(wc.collection_date), MONTH(wc.collection_date), DATE_FORMAT(wc.collection_date, '%b %Y')
      ORDER BY YEAR(wc.collection_date) ASC, MONTH(wc.collection_date) ASC`

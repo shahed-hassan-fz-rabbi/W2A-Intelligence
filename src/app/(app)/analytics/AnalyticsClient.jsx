@@ -1,112 +1,94 @@
+// Location: src/app/(app)/analytics/AnalyticsClient.jsx
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
 import StatCard from "@/components/StatCard";
-import BarRow from "@/components/BarRow";
-import StatusBadge from "@/components/StatusBadge";
+import DataTable from "@/components/DataTable";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  PieChart, Pie, Cell, Legend
+} from "recharts";
 
-const CATEGORY_TONE = { Plastic: "blue", Organic: "brand", Metal: "ink" };
+const COLORS = ["#d97706", "#0284c7", "#059669", "#dc2626", "#8b5cf6", "#64748b"];
 
 export default function AnalyticsClient() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [range, setRange] = useState({ from: "", to: "" });
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
 
-  const load = useCallback(async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
-    const qs = new URLSearchParams(
-      Object.entries(range).filter(([, v]) => v)
-    ).toString();
-    const res = await fetch(`/api/analytics?${qs}`);
-    const json = await res.json();
-    setData(res.ok ? json : null);
-    setLoading(false);
-  }, [range]);
+    try {
+      const params = new URLSearchParams();
+      if (from) params.append("from", from);
+      if (to) params.append("to", to);
+
+      const res = await fetch(`/api/analytics?${params.toString()}`);
+      const json = await res.json();
+      setData(json);
+    } catch (err) {
+      console.error("Failed to load analytics:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [from, to]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    loadData();
+  }, [loadData]);
 
-  const inputCls =
-    "w-full rounded-lg border border-line px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
+  const overview = data?.overview || {};
+  const monthly = Array.isArray(data?.monthly) ? data.monthly : [];
+  const categories = Array.isArray(data?.categories) ? data.categories : [];
+  const companies = Array.isArray(data?.companies) ? data.companies : [];
+  const activity = Array.isArray(data?.activity) ? data.activity : [];
 
-  if (loading && !data) {
-    return (
-      <div className="rounded-2xl border border-line bg-surface p-10 text-center text-sm text-muted">
-        Loading analytics…
-      </div>
-    );
-  }
-  if (!data) {
-    return (
-      <div className="rounded-2xl border border-line bg-surface p-10 text-center text-sm text-red-600">
-        Could not load analytics data.
-      </div>
-    );
-  }
-
-  const { overview, zones, companies, categories, activity, alerts, trend } = data;
-  const maxZone = Math.max(...zones.map((z) => Number(z.total_waste_kg)), 1);
-  const maxCompany = Math.max(...companies.map((c) => Number(c.processed_kg)), 1);
-  const maxCat = Math.max(...categories.map((c) => Number(c.collected_kg)), 1);
-  const maxTrend = Math.max(...trend.map((t) => Number(t.collected_kg)), 1);
+  const companyColumns = [
+    { key: "name", label: "Company" },
+    { key: "efficiency_score", label: "Efficiency", render: (r) => `${r.efficiency_score}%` },
+    { key: "completed_jobs", label: "Completed" },
+    { key: "active_jobs", label: "Active" },
+    { key: "processed_kg", label: "Processed (kg)", render: (r) => Number(r.processed_kg || 0).toLocaleString() },
+    { key: "completion_rate", label: "Rate", render: (r) => `${r.completion_rate}%` },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Date range + export */}
-      <div className="rounded-2xl border border-line bg-surface p-5">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-muted">
-              From
-            </label>
-            <input
-              type="date"
-              value={range.from}
-              onChange={(e) => setRange({ ...range, from: e.target.value })}
-              className={inputCls}
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-muted">
-              To
-            </label>
-            <input
-              type="date"
-              value={range.to}
-              onChange={(e) => setRange({ ...range, to: e.target.value })}
-              className={inputCls}
-            />
-          </div>
-          <div className="flex items-end">
-            <button
-              onClick={() => setRange({ from: "", to: "" })}
-              className="w-full rounded-lg border border-line px-4 py-2.5 text-sm font-medium text-ink-soft hover:bg-canvas"
-            >
-              Reset Range
-            </button>
-          </div>
-          <div className="flex items-end">
-            <div className="flex w-full flex-wrap gap-2">
-              {["zones", "companies", "categories", "lifecycle"].map((r) => (
-                <a
-                  key={r}
-                  href={`/api/analytics/export?report=${r}`}
-                  className="rounded-lg bg-brand-50 px-3 py-2 text-xs font-medium text-brand-700 transition hover:bg-brand-100"
-                >
-                  CSV: {r}
-                </a>
-              ))}
-            </div>
-          </div>
+      {/* Date Filters */}
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-4 shadow-sm">
+        <div className="flex items-center gap-2 text-xs text-ink-soft">
+          <span>From:</span>
+          <input
+            type="date"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+            className="rounded-lg border border-line bg-canvas px-2.5 py-1.5 text-xs text-ink outline-none focus:border-brand-500"
+          />
         </div>
+        <div className="flex items-center gap-2 text-xs text-ink-soft">
+          <span>To:</span>
+          <input
+            type="date"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+            className="rounded-lg border border-line bg-canvas px-2.5 py-1.5 text-xs text-ink outline-none focus:border-brand-500"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => { setFrom(""); setTo(""); }}
+          className="text-xs text-muted hover:text-brand-600 underline font-medium ml-auto"
+        >
+          Reset Dates
+        </button>
       </div>
 
-      
+      {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Total Waste Collected"
-          value={Number(overview.total_collected_kg).toLocaleString()}
+          label="Total Collected"
+          value={Number(overview.total_collected_kg || 0).toLocaleString()}
           unit="kg"
           icon="truck"
         />
@@ -118,175 +100,102 @@ export default function AnalyticsClient() {
           tone="blue"
         />
         <StatCard
-          label="Completed Jobs"
+          label="Completed Batches"
           value={overview.completed_jobs ?? 0}
           icon="box"
           tone="amber"
         />
         <StatCard
-          label="Carbon Saved"
-          value={Number(overview.carbon_saved_kg).toLocaleString()}
+          label="Carbon Avoided"
+          value={Number(overview.carbon_saved_kg || 0).toLocaleString()}
           unit="kg CO₂"
           icon="chart"
         />
       </div>
 
-      {/* alerts */}
-      {alerts.length > 0 && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-          <h2 className="mb-3 text-sm font-semibold text-amber-800">
-            System Alerts ({alerts.length})
-          </h2>
-          <ul className="space-y-1.5">
-            {alerts.map((a, i) => (
-              <li key={i} className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="rounded bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-900">
-                  {a.alert_type}
-                </span>
-                <span className="text-amber-900">{a.message}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
+      {/* Charts Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Zone heatmap*/}
-        <div className="rounded-2xl border border-line bg-surface p-5">
-          <h2 className="mb-1 text-base font-semibold text-ink">
-            Zone Waste Distribution
-          </h2>
-          <p className="mb-3 text-xs text-muted">
-            Total waste collected per city zone
-          </p>
-          {zones.map((z) => (
-            <BarRow
-              key={z.zone_id}
-              label={`${z.zone_name} (${z.area_code})`}
-              value={Number(z.total_waste_kg)}
-              max={maxZone}
-              sub={`${z.collection_count} collections · ${z.kg_per_1000} kg per 1000 residents`}
-            />
-          ))}
+        {/* Monthly Trend Bar Chart */}
+        <div className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+          <h3 className="text-sm font-bold text-ink mb-4">Monthly Collection Volume</h3>
+          <div className="h-64 w-full">
+            {monthly.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthly}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip formatter={(val) => [`${Number(val).toLocaleString()} kg`, "Collected"]} />
+                  <Bar dataKey="collected_kg" fill="#059669" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-xs text-muted">
+                {loading ? "Loading chart data..." : "No trend data recorded"}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Company performance*/}
-        <div className="rounded-2xl border border-line bg-surface p-5">
-          <h2 className="mb-1 text-base font-semibold text-ink">
-            Company Performance
-          </h2>
-          <p className="mb-3 text-xs text-muted">
-            Total waste processed and completion rate
-          </p>
-          {companies.map((c) => (
-            <BarRow
-              key={c.company_id}
-              label={c.name}
-              value={Number(c.processed_kg)}
-              max={maxCompany}
-              tone="blue"
-              sub={`${c.completed_jobs}/${c.total_assignments} completed (${c.completion_rate}%) · efficiency ${c.efficiency_score}`}
-            />
-          ))}
-        </div>
-
-        {/* Category + carbon*/}
-        <div className="rounded-2xl border border-line bg-surface p-5">
-          <h2 className="mb-1 text-base font-semibold text-ink">
-            Category Breakdown & Carbon Impact
-          </h2>
-          <p className="mb-3 text-xs text-muted">
-            CO₂ saved = processed quantity × carbon factor
-          </p>
-          {categories.map((c) => (
-            <BarRow
-              key={c.category}
-              label={c.category}
-              value={Number(c.collected_kg)}
-              max={maxCat}
-              tone={CATEGORY_TONE[c.category] || "brand"}
-              sub={`${Number(c.processed_kg).toFixed(0)} kg processed · ${Number(
-                c.carbon_saved_kg
-              ).toLocaleString()} kg CO₂ saved`}
-            />
-          ))}
-        </div>
-
-        {/* Daily trend */}
-        <div className="rounded-2xl border border-line bg-surface p-5">
-          <h2 className="mb-1 text-base font-semibold text-ink">
-            Collection Trend
-          </h2>
-          <p className="mb-4 text-xs text-muted">Last 14 days</p>
-          {trend.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted">
-              No collections in this period
-            </p>
-          ) : (
-            <div className="flex h-40 items-end gap-1.5">
-              {trend.map((t) => (
-                <div
-                  key={t.day}
-                  className="group relative flex flex-1 flex-col items-center justify-end"
-                >
-                  <div
-                    className="w-full rounded-t bg-brand-400 transition hover:bg-brand-600"
-                    style={{
-                      height: `${(Number(t.collected_kg) / maxTrend) * 100}%`,
-                    }}
-                  />
-                  <span className="mt-1 text-[9px] text-muted">
-                    {t.day.slice(5)}
-                  </span>
-                  <span className="absolute -top-6 hidden rounded bg-ink px-2 py-0.5 text-[10px] text-white group-hover:block">
-                    {Number(t.collected_kg).toFixed(0)} kg
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+        {/* Waste Category Pie Chart */}
+        <div className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+          <h3 className="text-sm font-bold text-ink mb-4">Waste Category Distribution</h3>
+          <div className="h-64 w-full">
+            {categories.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categories}
+                    dataKey="collected_kg"
+                    nameKey="category"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={80}
+                    paddingAngle={3}
+                  >
+                    {categories.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(val) => [`${Number(val).toLocaleString()} kg`, "Volume"]} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-xs text-muted">
+                {loading ? "Loading category data..." : "No category data recorded"}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Activity feed */}
-      <div className="rounded-2xl border border-line bg-surface p-5">
-        <h2 className="mb-1 text-base font-semibold text-ink">
-          City Activity Feed
-        </h2>
-        <p className="mb-4 text-xs text-muted">
-          Unified timeline built with a SQL UNION across collections,
-          assignments and production
-        </p>
+      {/* Company Performance Table */}
+      <div className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+        <h3 className="text-sm font-bold text-ink mb-3">Certified Recycling Partner Metrics</h3>
+        <DataTable
+          columns={companyColumns}
+          rows={companies.map((c) => ({ ...c, id: c.company_id }))}
+          empty="No active recycling companies registered"
+        />
+      </div>
+
+      {/* Activity Feed */}
+      <div className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+        <h3 className="text-sm font-bold text-ink mb-3">Live System Activity Feed</h3>
         <div className="divide-y divide-line">
-          {activity.map((a, i) => (
-            <div
-              key={i}
-              className="flex flex-wrap items-center justify-between gap-2 py-2.5"
-            >
-              <div className="flex min-w-0 items-center gap-3">
-                <StatusBadge
-                  value={
-                    a.event_type === "Collection"
-                      ? "Plastic"
-                      : a.event_type === "Assignment"
-                      ? "Pending"
-                      : "Completed"
-                  }
-                />
-                <span className="truncate text-sm text-ink-soft">
-                  {a.description}
-                </span>
-              </div>
-              <div className="flex shrink-0 items-center gap-3">
-                <span className="text-sm font-medium text-ink">
-                  {Number(a.quantity).toFixed(0)} kg
-                </span>
-                <span className="text-xs text-muted">
-                  {String(a.event_date).slice(0, 10)}
-                </span>
-              </div>
+          {activity.slice(0, 10).map((a, i) => (
+            <div key={i} className="flex items-center justify-between py-2 text-xs">
+              <span className="text-ink font-medium">{a.description}</span>
+              <span className="text-muted">
+                {a.event_date ? String(a.event_date).slice(0, 10) : "Recent"}
+              </span>
             </div>
           ))}
+          {activity.length === 0 && !loading && (
+            <p className="py-4 text-center text-xs text-muted">No recent operations logged</p>
+          )}
         </div>
       </div>
     </div>

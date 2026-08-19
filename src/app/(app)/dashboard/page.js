@@ -1,7 +1,11 @@
+// Location: src/app/(app)/dashboard/page.jsx
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import StatCard from "@/components/StatCard";
 import StatusBadge from "@/components/StatusBadge";
+import AICityAdvisor from "@/components/AICityAdvisor";
+import CityLiveMap from "@/components/CityLiveMap";
+import CompanyDashboardView from "@/components/CompanyDashboardView";
 import { getSession } from "@/lib/session";
 import { ROLE_LABEL } from "@/lib/roles";
 import { getOverview, getActivityFeed, getAlerts } from "@/lib/analytics";
@@ -12,6 +16,7 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const session = await getSession();
   const isAdmin = session.role === "admin";
+  const isCompany = session.role === "company";
 
   const overview = await getOverview(null, null);
   const activity = await getActivityFeed(8);
@@ -38,101 +43,109 @@ export default async function DashboardPage() {
       />
 
       <div className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Total Waste"
-            value={Number(overview.total_collected_kg).toLocaleString()}
-            unit="kg"
-            icon="truck"
-          />
-          <StatCard
-            label="Assignment Rate"
-            value={overview.assignment_rate ?? 0}
-            unit="%"
-            icon="clip"
-            tone="blue"
-          />
-          <StatCard
-            label="Completed Jobs"
-            value={overview.completed_jobs ?? 0}
-            icon="box"
-            tone="amber"
-          />
-          <StatCard
-            label="Carbon Saved"
-            value={Number(overview.carbon_saved_kg).toLocaleString()}
-            unit="kg CO₂"
-            icon="chart"
-          />
-        </div>
+        {/* If logged in as Recycling Partner Company, display dedicated ESG & B2B Procurement Portal */}
+        {isCompany ? (
+          <CompanyDashboardView session={session} />
+        ) : (
+          <>
+            {/* Standard Admin & Municipal View */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <StatCard
+                label="Total Waste"
+                value={Number(overview.total_collected_kg).toLocaleString()}
+                unit="kg"
+                icon="truck"
+              />
+              <StatCard
+                label="Assignment Rate"
+                value={overview.assignment_rate ?? 0}
+                unit="%"
+                icon="clip"
+                tone="blue"
+              />
+              <StatCard
+                label="Completed Jobs"
+                value={overview.completed_jobs ?? 0}
+                icon="box"
+                tone="amber"
+              />
+              <StatCard
+                label="Carbon Saved"
+                value={Number(overview.carbon_saved_kg).toLocaleString()}
+                unit="kg CO₂"
+                icon="chart"
+              />
+            </div>
 
-        {alerts.length > 0 && (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-            <h2 className="mb-3 text-sm font-semibold text-amber-800">
-              Attention Required
-            </h2>
-            <ul className="space-y-1.5">
-              {alerts.slice(0, 4).map((a, i) => (
-                <li key={i} className="text-sm text-amber-900">
-                  <span className="font-medium">{a.alert_type}:</span> {a.message}
-                </li>
-              ))}
-            </ul>
-          </div>
+            {alerts.length > 0 && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                <h2 className="mb-3 text-sm font-semibold text-amber-800">
+                  Attention Required
+                </h2>
+                <ul className="space-y-1.5">
+                  {alerts.slice(0, 4).map((a, i) => (
+                    <li key={i} className="text-sm text-amber-900">
+                      <span className="font-medium">{a.alert_type}:</span> {a.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Smart City Telemetry & Fleet Tracking */}
+            <CityLiveMap />
+
+            {/* Gemini-Powered AI City Advisor */}
+            <AICityAdvisor />
+
+            {/* Assignments & Activity Grid */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-2xl border border-line bg-surface p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-base font-semibold text-ink">Recent Assignments</h2>
+                  <Link
+                    href="/assignments"
+                    className="text-xs font-medium text-brand-600 hover:underline"
+                  >
+                    View all
+                  </Link>
+                </div>
+                <div className="divide-y divide-line">
+                  {recent.map((r) => (
+                    <div
+                      key={r.assignment_id}
+                      className="flex flex-wrap items-center justify-between gap-2 py-2.5"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-ink">
+                          {r.waste_type} · {r.zone_name}
+                        </p>
+                        <p className="text-xs text-muted">
+                          {r.company_name || "Unassigned"} · {Number(r.quantity_kg).toFixed(0)} kg
+                        </p>
+                      </div>
+                      <StatusBadge value={r.status} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-line bg-surface p-5">
+                <h2 className="mb-4 text-base font-semibold text-ink">Latest Activity</h2>
+                <div className="divide-y divide-line">
+                  {activity.map((a, i) => (
+                    <div key={i} className="flex items-center justify-between gap-3 py-2.5">
+                      <span className="truncate text-sm text-ink-soft">{a.description}</span>
+                      <span className="shrink-0 text-xs text-muted">
+                        {String(a.event_date).slice(0, 10)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
         )}
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-line bg-surface p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-ink">
-                Recent Assignments
-              </h2>
-              <Link
-                href="/assignments"
-                className="text-xs font-medium text-brand-600 hover:underline"
-              >
-                View all
-              </Link>
-            </div>
-            <div className="divide-y divide-line">
-              {recent.map((r) => (
-                <div
-                  key={r.assignment_id}
-                  className="flex flex-wrap items-center justify-between gap-2 py-2.5"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-ink">
-                      {r.waste_type} · {r.zone_name}
-                    </p>
-                    <p className="text-xs text-muted">
-                      {r.company_name || "Unassigned"} ·{" "}
-                      {Number(r.quantity_kg).toFixed(0)} kg
-                    </p>
-                  </div>
-                  <StatusBadge value={r.status} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-line bg-surface p-5">
-            <h2 className="mb-4 text-base font-semibold text-ink">
-              Latest Activity
-            </h2>
-            <div className="divide-y divide-line">
-              {activity.map((a, i) => (
-                <div key={i} className="flex items-center justify-between gap-3 py-2.5">
-                  <span className="truncate text-sm text-ink-soft">
-                    {a.description}
-                  </span>
-                  <span className="shrink-0 text-xs text-muted">
-                    {String(a.event_date).slice(0, 10)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </>
   );

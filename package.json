@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^3.0.3",
     "framer-motion": "^12.43.0",
     "lucide-react": "^1.25.0",
     "mysql2": "^3.23.1",

@@ -11,7 +11,7 @@ INSERT INTO Zone (name, area_code, population) VALUES
 
 -- ---------- Users ----------
 INSERT INTO User (name, email, password_hash, role, zone_id) VALUES
-('System Admin',  'admin@w2a.com',     'admin123',  'admin',     NULL),
+('System Admin',  'admin@w2a.com',     'Admin@123',  'admin',     NULL),
 ('Rakib Hasan',   'rakib@w2a.com',     'collect123','collector', 1),
 ('Nusrat Jahan',  'nusrat@w2a.com',    'collect123','collector', 2),
 ('Tanvir Ahmed',  'tanvir@w2a.com',    'collect123','collector', 4),

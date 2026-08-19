@@ -1,7 +1,7 @@
+// Location: src/app/api/assignments/route.js
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { requireRole } from "@/lib/session";
-
 
 export async function GET(request) {
   const auth = await requireRole();
@@ -12,7 +12,12 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
-    const company = searchParams.get("company");
+    let company = searchParams.get("company");
+
+    // Enforce tenant scoping if logged in as a recycling company
+    if (auth.session.role === "company" && auth.session.company_id) {
+      company = String(auth.session.company_id);
+    }
 
     let sql = `
       SELECT a.assignment_id, a.status, a.is_manual, a.processed_qty,

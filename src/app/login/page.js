@@ -1,15 +1,16 @@
+// Location: src/app/login/page.js
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { notify } from "@/lib/toast";
-import { ArrowLeft } from "lucide-react"; 
+import { ArrowLeft, Shield, Truck, Building2 } from "lucide-react";
 
-const DEMO = [
-  { label: "Admin", email: "admin@w2a.com", password: "admin123" },
-  { label: "Collector", email: "rakib@w2a.com", password: "collect123" },
-  { label: "Company", email: "green@w2a.com", password: "company123" },
+const DEMO_ACCOUNTS = [
+  { label: "Admin", email: "admin@w2a.com", password: "Admin@123", icon: Shield },
+  { label: "Collector", email: "rakib@w2a.com", password: "collect123", icon: Truck },
+  { label: "Company", email: "green@w2a.com", password: "company123", icon: Building2 },
 ];
 
 export default function LoginPage() {
@@ -18,30 +19,43 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function performLogin(targetEmail, targetPassword) {
+    const eMail = targetEmail || email;
+    const pWord = targetPassword || password;
+
+    if (!eMail || !pWord) {
+      notify.error("Please enter email and password");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: eMail, password: pWord }),
       });
       const data = await res.json();
 
       if (!res.ok) {
-        notify.error(data.error || "Login failed");
+        notify.error(data.error || "Invalid credentials");
         return;
       }
 
-      notify.success(`Welcome back, ${data.name.split(" ")[0]}`);
+      notify.success(`Welcome, ${data.name ? data.name.split(" ")[0] : "User"}`);
       router.push("/dashboard");
       router.refresh();
     } catch {
-      notify.error("Could not reach the server");
+      notify.error("Could not connect to server");
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleDemoFill(demoEmail, demoPassword) {
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    performLogin(demoEmail, demoPassword);
   }
 
   const inputCls =
@@ -49,8 +63,6 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-canvas p-4 relative">
-      
-      {/* p profile */}
       <div className="absolute top-6 left-6">
         <Link
           href="/"
@@ -73,7 +85,10 @@ export default function LoginPage() {
         </div>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            performLogin();
+          }}
           className="rounded-2xl border border-line bg-surface p-6 shadow-sm"
         >
           <label className="mb-1.5 block text-sm font-medium text-ink-soft">
@@ -107,6 +122,29 @@ export default function LoginPage() {
           >
             {loading ? "Signing in…" : "Sign In"}
           </button>
+
+          {/* Quick Demo Credentials Selection */}
+          <div className="mt-5 pt-4 border-t border-line">
+            <p className="text-[11px] font-semibold text-muted mb-2 text-center uppercase tracking-wider">
+              Quick 1-Click Demo Logins
+            </p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {DEMO_ACCOUNTS.map((acc) => {
+                const IconComponent = acc.icon;
+                return (
+                  <button
+                    key={acc.label}
+                    type="button"
+                    onClick={() => handleDemoFill(acc.email, acc.password)}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl border border-line hover:border-brand-500 bg-canvas hover:bg-brand-50 text-[11px] font-medium text-ink transition-all shadow-sm active:scale-95"
+                  >
+                    <IconComponent className="h-4 w-4 mb-1 text-brand-600" />
+                    {acc.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </form>
 
         <p className="mt-4 text-center text-sm text-muted">
@@ -118,8 +156,6 @@ export default function LoginPage() {
             Create one
           </Link>
         </p>
-
-       
       </div>
     </main>
   );
