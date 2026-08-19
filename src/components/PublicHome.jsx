@@ -189,8 +189,8 @@ export default function PublicHome({ session }) {
       {/* Project Overview Video Showcase Section */}
       <section className="mx-auto max-w-5xl px-4 pt-10 pb-4 sm:px-6">
         <div className="rounded-3xl border border-line bg-surface p-4 sm:p-6 shadow-lg">
-          <div className="flex items-center justify-between mb-3 px-1">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-xl bg-brand-50 text-brand-600">
                 <Video className="h-4 w-4" />
               </div>
@@ -208,16 +208,21 @@ export default function PublicHome({ session }) {
             </span>
           </div>
 
-          <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-inner border border-line/60">
-            <video
-              src="/projectOverview.mp4"
-              controls
-              playsInline
-              preload="metadata"
-              className="h-full w-full object-cover"
-            >
-              Your browser does not support the video tag.
-            </video>
+          {/* Video Responsive Embed */}
+          <div className="mx-auto w-full max-w-4xl">
+            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-line bg-black shadow-2xl">
+              <iframe
+                className="absolute inset-0 h-full w-full"
+                src="https://www.youtube.com/embed/762iylKe4XI?si=aYy0nEearAtnlu5T"
+                title="W2A Intelligence Demo Walkthrough"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            </div>
+            <p className="mt-3 text-center text-xs font-medium text-muted">
+              Full End-to-End Architectural Walkthrough &amp; AI-Powered Incident Lifecycle
+            </p>
           </div>
         </div>
       </section>
