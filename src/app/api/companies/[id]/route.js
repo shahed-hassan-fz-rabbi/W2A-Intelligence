@@ -1,3 +1,4 @@
+// Location: src/app/api/companies/[id]/route.js
 import { NextResponse } from "next/server";
 import { query, execute, withTransaction } from "@/lib/db";
 import { requireRole } from "@/lib/session";
@@ -12,7 +13,6 @@ export async function PATCH(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
-    
     if (body.is_active !== undefined && body.name === undefined) {
       await execute("UPDATE Company SET is_active = ? WHERE company_id = ?", [
         body.is_active ? 1 : 0,
@@ -99,7 +99,7 @@ export async function DELETE(request, { params }) {
       "SELECT COUNT(*) AS n FROM Assignment WHERE company_id = ?",
       [id]
     );
-    if (used.n > 0) {
+    if (used && used.n > 0) {
       return NextResponse.json(
         {
           error: `This company has ${used.n} assignment(s). Deactivate it instead of deleting.`,
